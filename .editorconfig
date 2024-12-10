@@ -134,5 +134,11 @@ dotnet_diagnostic.SA1649.severity = none
 # CA1062: Validate arguments of public methods
 dotnet_diagnostic.CA1062.severity = error
 
-# SA0001: XML comment analysis disabled
-dotnet_diagnostic.SA0001.severity = silent
+# SA0001: XML comment analysis is disabled
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1309: Make sure variables with private access modifier are allowed to start with "_"
+dotnet_diagnostic.SA1309.severity = none
+
+# SA1309: Make sure class members are allowed to call without "this" prefix
+dotnet_diagnostic.SA1101.severity = none
