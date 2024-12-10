@@ -1,9 +1,9 @@
-using Francesco.Recipes.World.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-
-namespace Francesco.Recipes.World.Controllers
+﻿namespace Francesco.Recipes.World.Controllers
 {
+    using System.Diagnostics;
+    using Francesco.Recipes.World.Models;
+    using Microsoft.AspNetCore.Mvc;
+
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
