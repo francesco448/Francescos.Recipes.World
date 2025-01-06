@@ -1,4 +1,4 @@
-namespace Francesco.Recipes.World.Models
+﻿namespace Francesco.Recipes.World.Models
 {
     public class ErrorViewModel
     {
