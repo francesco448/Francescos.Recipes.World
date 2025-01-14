@@ -8,14 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-services.AddLogging(
-    loggingBuilder =>
-        loggingBuilder.AddSerilog(
-            new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger()));
-
-
 var connectionString = builder.Configuration.GetConnectionString("FrancescosRecipesWorldDbContextConnection")
-                       ?? throw new InvalidOperationException("Connection string 'RecruitmentToolDbContextConnection' not found.");
+                       ?? throw new InvalidOperationException("Connection string 'FrancescosRecipesWorldDbContextConnection' not found.");
 services.AddDbContext<FrancescosRecipesWorldDbContext>(options =>
     options.UseSqlServer(connectionString));
 
