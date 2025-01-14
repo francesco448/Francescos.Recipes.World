@@ -5,9 +5,7 @@
     using Francesco.Recipes.World.Models.BackendModels.Instruction;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient;
-    using Francesco.Recipes.World.Models.BackendModels;
-    using Microsoft.AspNetCore.Identity;
-    using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+    using Francesco.Recipes.World.Models.BackendModels.Unit;
     using Microsoft.EntityFrameworkCore;
 
     public class FrancescosRecipesWorldDbContext : DbContext
@@ -22,5 +20,6 @@
         public DbSet<Instruction> Instructions => Set<Instruction>();
         public DbSet<Recipe> Recipes => Set<Recipe>();
         public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
+        public DbSet<Unit> Units => Set<Unit>();
     }
 }

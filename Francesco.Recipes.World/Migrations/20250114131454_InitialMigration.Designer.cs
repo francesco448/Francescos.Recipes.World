@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Francesco.Recipes.World.Migrations
 {
     [DbContext(typeof(FrancescosRecipesWorldDbContext))]
-    [Migration("20250108101519_RemoveIdentity")]
-    partial class RemoveIdentity
+    [Migration("20250114131454_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
