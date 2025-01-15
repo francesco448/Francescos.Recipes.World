@@ -1,4 +1,20 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Francesco.Recipes.World.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+
+
+var builder = WebApplication.CreateBuilder(args);
+var services = builder.Services;
+var configuration = builder.Configuration;
+
+var connectionString = builder.Configuration.GetConnectionString("FrancescosRecipesWorldDbContextConnection")
+                       ?? throw new InvalidOperationException("Connection string 'FrancescosRecipesWorldDbContextConnection' not found.");
+services.AddDbContext<FrancescosRecipesWorldDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<FrancescosRecipesWorldDbContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -18,8 +34,11 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.MapDefaultControllerRoute();
 
 app.MapControllerRoute(
     name: "default",
