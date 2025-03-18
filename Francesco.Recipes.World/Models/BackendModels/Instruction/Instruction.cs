@@ -1,13 +1,13 @@
 ﻿namespace Francesco.Recipes.World.Models.BackendModels.Instruction
 {
-    using Francesco.Recipes.World.Models.BackendModels.File;
+    using Francesco.Recipes.World.Models.BackendModels.MediaFile;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
     public class Instruction
     {
         public Guid Id { get; set; }
-        public string Description { get; set; }
-        public string Number { get; set; }
+        public string? Description { get; set; }
+        public string? Number { get; set; }
         public virtual Recipe Recipe { get; set; } = new();
-        public ICollection<MediaFileImageInstruction> MediaFileImageInstructions { get; set; } = new List<MediaFileImageInstruction>();
+        public virtual ICollection<MediaFile> MediaFiles { get; set; } = new List<MediaFile>();
     }
 }

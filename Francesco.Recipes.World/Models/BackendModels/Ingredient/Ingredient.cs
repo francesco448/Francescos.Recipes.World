@@ -7,10 +7,8 @@
     public class Ingredient
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public int Quantity { get; set; }
+        public string? Name { get; set; }
         public virtual ICollection<RecipeIngredient> RecipeIngredients { get; set; } = new List<RecipeIngredient>();
         public virtual ICollection<IngredientsShoppingList> IngredientShoppingLists { get; set; } = new List<IngredientsShoppingList>();
-        public virtual Unit Unit { get; set; } = new();
     }
 }

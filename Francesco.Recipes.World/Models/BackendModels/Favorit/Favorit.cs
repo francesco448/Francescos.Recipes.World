@@ -5,6 +5,6 @@
     {
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
-        public virtual Recipe Recipe { get; set; } = new();
+        public virtual ICollection<Recipe> Recipe { get; set; } = new List<Recipe>();
     }
 }
