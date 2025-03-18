@@ -7,8 +7,8 @@ namespace Francesco.Recipes.World.Models.BackendModels.Unit
     public class Unit
     {
         public Guid Id{ get; set; }
-        public string? Name { get; set; }
-        public string? Symbol { get; set; }
+        public string Name { get; set; }
+        public string Symbol { get; set; }
         public virtual ICollection<RecipeIngredient> RecipeIngredient { get; set; } = new List<RecipeIngredient>();
     } 
 }
