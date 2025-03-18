@@ -1,20 +1,22 @@
 ﻿namespace Francesco.Recipes.World.Data
 {
+<<<<<<< HEAD
     using Francesco.Recipes.World.Models.BackendModels;
     using Francesco.Recipes.World.Models.BackendModels.Category;
     using Francesco.Recipes.World.Models.BackendModels.Favorit;
+=======
+    using Francesco.Recipes.World.Models.BackendModels.Category;
+>>>>>>> parent of 45702aa (Correct Models Unit and Category)
     using Francesco.Recipes.World.Models.BackendModels.Ingredient;
-    using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
     using Francesco.Recipes.World.Models.BackendModels.Instruction;
-    using Francesco.Recipes.World.Models.BackendModels.MediaFile;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient;
-    using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
     using Francesco.Recipes.World.Models.BackendModels.Unit;
     using Microsoft.EntityFrameworkCore;
 
     public class FrancescosRecipesWorldDbContext : DbContext
     {
+<<<<<<< HEAD
         public FrancescosRecipesWorldDbContext(DbContextOptions<FrancescosRecipesWorldDbContext> options)
             : base(options)
         {
@@ -103,5 +105,18 @@
             new Unit { Id = Guid.Parse("24a91b89-3389-4465-89e4-2f70d2ea6fd7"), Name = "esslöffel", Symbol = "EL" },
         ];
         }
+=======
+        public FrancescosRecipesWorldDbContext(DbContextOptions<FrancescosRecipesWorldDbContext> options) 
+            : base(options) 
+        { 
+        }
+
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Ingredient> Ingredients => Set<Ingredient>();
+        public DbSet<Instruction> Instructions => Set<Instruction>();
+        public DbSet<Recipe> Recipes => Set<Recipe>();
+        public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
+        public DbSet<Unit> Units => Set<Unit>();
+>>>>>>> parent of 45702aa (Correct Models Unit and Category)
     }
 }
