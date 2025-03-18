@@ -5,8 +5,8 @@
     public class Instruction
     {
         public Guid Id { get; set; }
-        public string? Description { get; set; }
-        public string? Number { get; set; }
+        public string Description { get; set; }
+        public string Number { get; set; }
         public virtual Recipe Recipe { get; set; } = new();
         public virtual ICollection<MediaFile> MediaFiles { get; set; } = new List<MediaFile>();
     }
