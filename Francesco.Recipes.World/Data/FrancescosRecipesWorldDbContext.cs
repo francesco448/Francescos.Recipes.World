@@ -1,8 +1,7 @@
-﻿namespace Francesco.Recipes.World.Data;
-
-using System.Runtime.CompilerServices;
-using Francesco.Recipes.World.Models.BackendModels;
-using Francesco.Recipes.World.Models.BackendModels.Category;
+﻿namespace Francesco.Recipes.World.Data
+{
+    using Francesco.Recipes.World.Models.BackendModels;
+    using Francesco.Recipes.World.Models.BackendModels.Category;
     using Francesco.Recipes.World.Models.BackendModels.Favorit;
     using Francesco.Recipes.World.Models.BackendModels.Ingredient;
     using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
@@ -12,70 +11,69 @@ using Francesco.Recipes.World.Models.BackendModels.Category;
     using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient;
     using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
     using Francesco.Recipes.World.Models.BackendModels.Unit;
-using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore;
 
-public class FrancescosRecipesWorldDbContext : DbContext
-{
-    public FrancescosRecipesWorldDbContext(DbContextOptions<FrancescosRecipesWorldDbContext> options)
-        : base(options)
+    public class FrancescosRecipesWorldDbContext : DbContext
     {
-    }
-
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Ingredient> Ingredients => Set<Ingredient>();
-    public DbSet<Instruction> Instructions => Set<Instruction>();
-    public DbSet<Recipe> Recipes => Set<Recipe>();
-    public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
-    public DbSet<Unit> Units => Set<Unit>();
-    public DbSet<Favorit> Favorits => Set<Favorit>();
-    public DbSet<IngredientsShoppingList> IngredientsShoppingLists => Set<IngredientsShoppingList>();
-    public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
-    public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        foreach (var entry in ChangeTracker.Entries())
+        public FrancescosRecipesWorldDbContext(DbContextOptions<FrancescosRecipesWorldDbContext> options)
+            : base(options)
         {
-            if (entry.Entity is ITimeStampedEntity timeStampedEntity)
+        }
+
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Ingredient> Ingredients => Set<Ingredient>();
+        public DbSet<Instruction> Instructions => Set<Instruction>();
+        public DbSet<Recipe> Recipes => Set<Recipe>();
+        public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
+        public DbSet<Unit> Units => Set<Unit>();
+        public DbSet<Favorit> Favorits => Set<Favorit>();
+        public DbSet<IngredientsShoppingList> IngredientsShoppingLists => Set<IngredientsShoppingList>();
+        public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
+        public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entry in ChangeTracker.Entries())
             {
-                switch (entry.State)
+                if (entry.Entity is ITimeStampedEntity timeStampedEntity)
                 {
-                    case EntityState.Added:
-                        timeStampedEntity.CreatedAt = DateTime.UtcNow;
-                        break;
-                    case EntityState.Modified:
-                        timeStampedEntity.ModifiedAt = DateTime.UtcNow;
-                        break;
+                    switch (entry.State)
+                    {
+                        case EntityState.Added:
+                            timeStampedEntity.CreatedAt = DateTime.UtcNow;
+                            break;
+                        case EntityState.Modified:
+                            timeStampedEntity.ModifiedAt = DateTime.UtcNow;
+                            break;
+                    }
                 }
             }
+
+            return base.SaveChangesAsync(cancellationToken);
         }
 
-        return base.SaveChangesAsync(cancellationToken);
-    }
-    protected override void OnModelCreating(ModelBuilder builder)
-    {
-        if (builder is null)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            throw new ArgumentNullException(nameof(builder));
+            ArgumentNullException.ThrowIfNull(builder);
+
+            SeedData(builder);
+
+            base.OnModelCreating(builder);
         }
 
-        SeedData(builder);
-
-        base.OnModelCreating(builder);
-    }
-
-    private static void SeedData(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Category>()
-           .HasData(GetCategories());
-
-        modelBuilder.Entity<Unit>()
-            .HasData(GetUnits());
-    }
-    private static IEnumerable<Category> GetCategories()
-    {
-        return new List<Category>()
+        private static void SeedData(ModelBuilder modelBuilder)
         {
-            new Category { Id = Guid.Parse("b248244f-f21c-4555-a14d-5dd49a2717cf"), Name = "Vorspeisen & Snacks" },
+            modelBuilder.Entity<Category>()
+               .HasData(GetCategories());
+
+            modelBuilder.Entity<Unit>()
+                .HasData(GetUnits());
+        }
+
+        private static IEnumerable<Category> GetCategories()
+        {
+            return
+            [
+                new Category { Id = Guid.Parse("b248244f-f21c-4555-a14d-5dd49a2717cf"), Name = "Vorspeisen & Snacks" },
             new Category { Id = Guid.Parse("5186c5d6-5aff-4a6e-baf4-b61b72d889fe"), Name = "Erste Gänge" },
             new Category { Id = Guid.Parse("abbc6bb0-97ea-49f5-b31e-6507eb784fd1"), Name = "Hauptgerichte" },
             new Category { Id = Guid.Parse("90deec39-dcd0-422d-9018-ac8389e332e1"), Name = "Desserts & Süßspeisen" },
@@ -85,14 +83,14 @@ public class FrancescosRecipesWorldDbContext : DbContext
             new Category { Id = Guid.Parse("d332f88d-d241-48c5-a2f2-bfd124eada7e"), Name = "Soßen & Saucen" },
             new Category { Id = Guid.Parse("23b1c740-e427-44f9-a6ea-d33d3f30f05a"), Name = "Marmeladen & Eingemachtes" },
             new Category { Id = Guid.Parse("0a91a200-dc76-4e00-b38c-b38cab5b69d7"), Name = "Getränke" },
-        };
-    }
+        ];
+        }
 
-    private static IEnumerable<Unit> GetUnits()
-    {
-        return new List<Unit>()
+        private static IEnumerable<Unit> GetUnits()
         {
-            new Unit { Id = Guid.Parse("62eb2c11-8768-46fb-9db0-c77f940bb4aa"), Name = "liter", Symbol = "l" },
+            return
+            [
+                new Unit { Id = Guid.Parse("62eb2c11-8768-46fb-9db0-c77f940bb4aa"), Name = "liter", Symbol = "l" },
             new Unit { Id = Guid.Parse("6c41f7e6-ca75-49cc-8541-cebd5a9c560b"), Name = "gramm", Symbol = "g" },
             new Unit { Id = Guid.Parse("7e3d1b86-ac48-45d6-814e-d3492a86db1d"), Name = "kilogramm", Symbol = "kg" },
             new Unit { Id = Guid.Parse("0c3648ec-4981-42c8-abf8-18bf1a2ff4c2"), Name = "stücke", Symbol = "stk" },
@@ -103,6 +101,7 @@ public class FrancescosRecipesWorldDbContext : DbContext
             new Unit { Id = Guid.Parse("66556e0e-eb2b-4bc3-9a56-135dd508ed09"), Name = "zehe", Symbol = "zehe" },
             new Unit { Id = Guid.Parse("2e9894ac-14fa-43fd-ba07-35cdd8ebd461"), Name = "teelöffel", Symbol = "TL" },
             new Unit { Id = Guid.Parse("24a91b89-3389-4465-89e4-2f70d2ea6fd7"), Name = "esslöffel", Symbol = "EL" },
-        };
+        ];
+        }
     }
 }
