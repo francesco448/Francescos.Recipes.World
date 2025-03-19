@@ -126,7 +126,7 @@ dotnet_diagnostic.SA1601.severity = none
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.DocumentationRules.severity = none
 
 # SA1516: Elements should be separated by blank line
-dotnet_diagnostic.SA1516.severity = none
+dotnet_diagnostic.SA1516.severity = error
 
 # SA1649: File name should match first type name
 dotnet_diagnostic.SA1649.severity = none
