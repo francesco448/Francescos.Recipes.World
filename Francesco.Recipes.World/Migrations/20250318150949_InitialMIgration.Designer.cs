@@ -4,6 +4,7 @@ using Francesco.Recipes.World.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Francesco.Recipes.World.Migrations
 {
     [DbContext(typeof(FrancescosRecipesWorldDbContext))]
-    partial class FrancescosRecipesWorldDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250318150949_InitialMIgration")]
+    partial class InitialMIgration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
