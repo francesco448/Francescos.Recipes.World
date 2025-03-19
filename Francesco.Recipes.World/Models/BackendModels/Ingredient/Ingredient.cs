@@ -2,7 +2,6 @@
 {
     using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
     using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient;
-    using Francesco.Recipes.World.Models.BackendModels.Unit;
 
     public class Ingredient
     {

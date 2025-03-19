@@ -73,7 +73,7 @@
         {
             return
             [
-                new Category { Id = Guid.Parse("b248244f-f21c-4555-a14d-5dd49a2717cf"), Name = "Vorspeisen & Snacks" },
+            new Category { Id = Guid.Parse("b248244f-f21c-4555-a14d-5dd49a2717cf"), Name = "Vorspeisen & Snacks" },
             new Category { Id = Guid.Parse("5186c5d6-5aff-4a6e-baf4-b61b72d889fe"), Name = "Erste Gänge" },
             new Category { Id = Guid.Parse("abbc6bb0-97ea-49f5-b31e-6507eb784fd1"), Name = "Hauptgerichte" },
             new Category { Id = Guid.Parse("90deec39-dcd0-422d-9018-ac8389e332e1"), Name = "Desserts & Süßspeisen" },
@@ -90,7 +90,7 @@
         {
             return
             [
-                new Unit { Id = Guid.Parse("62eb2c11-8768-46fb-9db0-c77f940bb4aa"), Name = "liter", Symbol = "l" },
+            new Unit { Id = Guid.Parse("62eb2c11-8768-46fb-9db0-c77f940bb4aa"), Name = "liter", Symbol = "l" },
             new Unit { Id = Guid.Parse("6c41f7e6-ca75-49cc-8541-cebd5a9c560b"), Name = "gramm", Symbol = "g" },
             new Unit { Id = Guid.Parse("7e3d1b86-ac48-45d6-814e-d3492a86db1d"), Name = "kilogramm", Symbol = "kg" },
             new Unit { Id = Guid.Parse("0c3648ec-4981-42c8-abf8-18bf1a2ff4c2"), Name = "stücke", Symbol = "stk" },
