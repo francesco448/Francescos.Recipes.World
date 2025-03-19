@@ -6,9 +6,9 @@
     public class RecipeIngredient
     {
         public Guid Id { get; set; }
-        public virtual Recipe Recipe { get; set; } = new();
-        public virtual Ingredient Ingredient { get; set; } = new();
-        public virtual Unit Unit { get; set; } = new();
+        public virtual Recipe Recipe { get; set; } = new ();
+        public virtual Ingredient Ingredient { get; set; } = new ();
+        public virtual Unit Unit { get; set; } = new ();
         public int Quantity { get; set; }
     }
 }

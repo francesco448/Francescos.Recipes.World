@@ -1,12 +1,12 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
+﻿#nullable disable
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
 namespace Francesco.Recipes.World.Migrations
 {
+    using System;
+    using Microsoft.EntityFrameworkCore.Migrations;
+
     /// <inheritdoc />
     public partial class InitialMIgration : Migration
     {
@@ -17,12 +17,13 @@ namespace Francesco.Recipes.World.Migrations
             {
                 throw new ArgumentNullException(nameof(migrationBuilder));
             }
+
             migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -34,7 +35,7 @@ namespace Francesco.Recipes.World.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -46,7 +47,7 @@ namespace Francesco.Recipes.World.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -59,7 +60,7 @@ namespace Francesco.Recipes.World.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -72,7 +73,7 @@ namespace Francesco.Recipes.World.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Symbol = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Symbol = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -94,7 +95,7 @@ namespace Francesco.Recipes.World.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     FavoritId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -118,7 +119,7 @@ namespace Francesco.Recipes.World.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ShoppinglistId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IngredientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    IngredientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -144,7 +145,7 @@ namespace Francesco.Recipes.World.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Number = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RecipeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    RecipeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -165,7 +166,7 @@ namespace Francesco.Recipes.World.Migrations
                     RecipeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IngredientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -199,7 +200,7 @@ namespace Francesco.Recipes.World.Migrations
                     MimeType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     RecipeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    InstructionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    InstructionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -231,7 +232,7 @@ namespace Francesco.Recipes.World.Migrations
                     { new Guid("abbc6bb0-97ea-49f5-b31e-6507eb784fd1"), "Hauptgerichte" },
                     { new Guid("adfb75ce-3ef3-428b-a5ca-b0c4c619d5ec"), "Hefegebäck & Brot" },
                     { new Guid("b248244f-f21c-4555-a14d-5dd49a2717cf"), "Vorspeisen & Snacks" },
-                    { new Guid("d332f88d-d241-48c5-a2f2-bfd124eada7e"), "Soßen & Saucen" }
+                    { new Guid("d332f88d-d241-48c5-a2f2-bfd124eada7e"), "Soßen & Saucen" },
                 });
 
             migrationBuilder.InsertData(
@@ -249,7 +250,7 @@ namespace Francesco.Recipes.World.Migrations
                     { new Guid("7ea2f51d-7493-4f19-a663-1f309186d3ae"), "bund", "bund" },
                     { new Guid("d82f4abd-e4e4-4104-a9c0-1acdeaa701f5"), "blatt", "blatt" },
                     { new Guid("df5cb4c3-4de6-4c6f-be8c-da41b2986408"), "messerspitze", "msp" },
-                    { new Guid("e45a3af2-2ed6-4ac4-b06f-b4175663a7be"), "stange", "stange" }
+                    { new Guid("e45a3af2-2ed6-4ac4-b06f-b4175663a7be"), "stange", "stange" },
                 });
 
             migrationBuilder.CreateIndex(
@@ -310,6 +311,7 @@ namespace Francesco.Recipes.World.Migrations
             {
                 throw new ArgumentNullException(nameof(migrationBuilder));
             }
+
             migrationBuilder.DropTable(
                 name: "IngredientsShoppingLists");
 

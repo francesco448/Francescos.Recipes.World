@@ -1,7 +1,7 @@
-﻿using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
-
-namespace Francesco.Recipes.World.Models.BackendModels.Shoppinglist
+﻿namespace Francesco.Recipes.World.Models.BackendModels.Shoppinglist
 {
+    using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
+
     public class ShoppingList : ITimeStampedEntity
     {
         public Guid Id { get; set; }

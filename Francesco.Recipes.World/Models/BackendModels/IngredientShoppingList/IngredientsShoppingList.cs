@@ -6,7 +6,7 @@
     public class IngredientsShoppingList
     {
         public Guid Id { get; set; }
-        public ShoppingList Shoppinglist { get; set; } = new();
-        public Ingredient Ingredient { get; set; } = new();
+        public ShoppingList Shoppinglist { get; set; } = new ();
+        public Ingredient Ingredient { get; set; } = new ();
     }
 }
