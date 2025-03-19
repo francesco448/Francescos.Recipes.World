@@ -142,11 +142,11 @@ dotnet_diagnostic.SA1309.severity = none
 
 # SA1309: Make sure class members are allowed to call without "this" prefix
 dotnet_diagnostic.SA1101.severity = none
-# parameter spans multiple lines
+# SA1118: parameter spans multiple lines
 dotnet_diagnostic.SA1118.severity = none  
-# closing square bracket spacing
+# SA1011: closing square bracket spacing
 dotnet_diagnostic.SA1011.severity = none  
- # no blank lines at start of file
+# SA1517: no blank lines at start of file
 dotnet_diagnostic.SA1517.severity = none 
- # using directive should appear within a namespace
+# SA1200: using directive should appear within a namespace
 dotnet_diagnostic.SA1200.severity = none 
