@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>be6a70eb-b657-40b2-b4a1-418e5c6ec131</UserSecretsId>
   </PropertyGroup>
+<PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <CodeAnalysisRuleSet>$(SolutionDir)Francesco.Recipes.World.ruleset</CodeAnalysisRuleSet>
+</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.11" />
@@ -37,5 +41,12 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controller\" />
+  </ItemGroup>
+<ItemGroup>
+  <AdditionalFiles Include=".\stylecop.json" />
+</ItemGroup>
 
 </Project>
