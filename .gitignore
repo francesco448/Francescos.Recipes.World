@@ -396,5 +396,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-src/Recruitment.Tool.xml
-/Francesco.Recipes.World/Migrations/20250304095839_AddFewNewBackendModels.Designer.cs
+src/Francesco.Recipes.World.xml
+

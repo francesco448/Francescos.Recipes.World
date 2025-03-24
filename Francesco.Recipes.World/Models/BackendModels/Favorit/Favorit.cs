@@ -5,7 +5,9 @@
     public class Favorit
     {
         public Guid Id { get; set; }
+
         public DateTime CreatedAt { get; set; }
+
         public virtual ICollection<Recipe> Recipe { get; set; } = new List<Recipe>();
     }
 }

@@ -1,15 +1,22 @@
 ﻿using Francesco.Recipes.World.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
 
+using Francesco.Recipes.World.Repositories;
+
+using FrancescoRecipesWorld.Repositories;
+
+using Microsoft.AspNetCore.Identity;
+
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var services = builder.Services;
+
 var configuration = builder.Configuration;
 
 var connectionString = builder.Configuration.GetConnectionString("FrancescosRecipesWorldDbContextConnection")
                        ?? throw new InvalidOperationException("Connection string 'FrancescosRecipesWorldDbContextConnection' not found.");
+
 services.AddDbContext<FrancescosRecipesWorldDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -18,6 +25,14 @@ services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfi
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+
+builder.Services.AddScoped<IIngredientRepository, IngredientRepository>();
+
+builder.Services.AddScoped<IUnitRepository, UnitRepository>();
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var app = builder.Build();
 
@@ -31,9 +46,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
+
 app.UseAuthentication();
 
 app.UseAuthorization();
