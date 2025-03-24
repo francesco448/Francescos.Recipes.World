@@ -1,5 +1,5 @@
-﻿namespace Francesco.Recipes.World.Data
-{
+﻿namespace Francesco.Recipes.World.Data;
+
     using Francesco.Recipes.World.Models.BackendModels;
     using Francesco.Recipes.World.Models.BackendModels.Category;
     using Francesco.Recipes.World.Models.BackendModels.Favorit;
@@ -21,15 +21,25 @@
         }
 
         public DbSet<Category> Categories => Set<Category>();
+
         public DbSet<Ingredient> Ingredients => Set<Ingredient>();
+
         public DbSet<Instruction> Instructions => Set<Instruction>();
+
         public DbSet<Recipe> Recipes => Set<Recipe>();
+
         public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>();
+
         public DbSet<Unit> Units => Set<Unit>();
+
         public DbSet<Favorit> Favorits => Set<Favorit>();
+
         public DbSet<IngredientsShoppingList> IngredientsShoppingLists => Set<IngredientsShoppingList>();
+
         public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
+
         public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
+
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             foreach (var entry in ChangeTracker.Entries())
@@ -104,4 +114,3 @@
         ];
         }
     }
-}
