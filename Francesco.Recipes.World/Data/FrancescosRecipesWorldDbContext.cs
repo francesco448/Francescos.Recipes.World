@@ -34,7 +34,7 @@
 
         public DbSet<Favorit> Favorits => Set<Favorit>();
 
-        public DbSet<IngredientsShoppingList> IngredientsShoppingLists => Set<IngredientsShoppingList>();
+        public DbSet<RecipeIngredientShoppingList> RecipeIngredientsShoppingLists => Set<RecipeIngredientShoppingList>();
 
         public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
 
