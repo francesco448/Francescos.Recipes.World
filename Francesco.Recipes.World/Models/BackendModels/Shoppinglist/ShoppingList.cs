@@ -10,6 +10,6 @@
 
         public DateTime? ModifiedAt { get; set; }
 
-        public virtual ICollection<IngredientsShoppingList> IngredientsShoppingLists { get; set; } = new List<IngredientsShoppingList>();
+        public virtual ICollection<RecipeIngredientShoppingList> RecipeIngredientShoppingLists { get; set; } = new List<RecipeIngredientShoppingList>();
     }
 }

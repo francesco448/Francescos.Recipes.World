@@ -11,6 +11,6 @@
 
         public virtual ICollection<RecipeIngredient> RecipeIngredients { get; set; } = new List<RecipeIngredient>();
 
-        public virtual ICollection<IngredientsShoppingList> IngredientShoppingLists { get; set; } = new List<IngredientsShoppingList>();
+        public virtual ICollection<RecipeIngredientShoppingList> IngredientShoppingLists { get; set; } = new List<RecipeIngredientShoppingList>();
     }
 }

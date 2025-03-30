@@ -1,5 +1,6 @@
 ﻿namespace Francesco.Recipes.World.Models.BackendModels.Recipe;
 
+using Francesco.Recipes.World.Models.BackendModels.Category;
 using Francesco.Recipes.World.Models.BackendModels.Favorit;
 using Francesco.Recipes.World.Models.BackendModels.Instruction;
 using Francesco.Recipes.World.Models.BackendModels.MediaFile;
@@ -34,4 +35,6 @@ public class Recipe : ITimeStampedEntity
     public virtual ICollection<MediaFile> MediaFiles { get; set; } = new List<MediaFile>();
 
     public virtual Favorit Favorit { get; set; } = new ();
+
+    public virtual Category Category { get; set; } = new ();
 }
