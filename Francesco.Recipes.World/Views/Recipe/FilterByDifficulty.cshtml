@@ -1,0 +1,36 @@
+﻿    @model Francesco.Recipes.World.Views.Recipe.FilterByDifficultyViewModel
+    @using Francesco.Recipes.World.Models.BackendModels.Recipe
+
+@{
+    ViewData["Title"] = "Filter Recipes by Difficulty";
+}
+
+<h1>Filter Recipes by Difficulty</h1>
+
+<form asp-action="FilterByDifficulty" method="get">
+    <div class="form-group">
+        <label asp-for="SelectedDifficulty" class="control-label"></label>
+        <select asp-for="SelectedDifficulty" class="form-control" asp-items="Html.GetEnumSelectList<Difficulty>()"></select>
+        <span asp-validation-for="SelectedDifficulty" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+</form>
+
+@if (Model.Recipes != null && Model.Recipes.Any())
+{
+    <h2>Filtered Recipes</h2>
+    <ul>
+        @foreach (var recipe in Model.Recipes)
+        {
+            <li>@recipe.Name - @recipe.Difficulty</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No recipes found for the selected difficulty.</p>
+}
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    }

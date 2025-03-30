@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Francesco.Recipes.World.Models.BackendModels.Category.Category>
+
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<h2>Categories</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@category.Id" class="btn btn-primary">Details</a>
+                    <a asp-action="Recipes" asp-route-id="@category.Id" class="btn btn-secondary">Recipes</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
