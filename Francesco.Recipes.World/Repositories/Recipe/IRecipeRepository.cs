@@ -14,7 +14,7 @@
 
         Task<IEnumerable<Recipe>> GetRecipesByNameOrIngredientAsync(string name, string ingredient);
 
-        Task<IEnumerable<Recipe>> GetRecipesByDifficultyAsync(Difficulty difficulty);
+        Task<IReadOnlyCollection<Recipe>> GetRecipesByDifficultyAsync(Difficulty? difficulty);
 
         Task<Unit> AddUnitToRecipeAsync(string name, string symbol);
 

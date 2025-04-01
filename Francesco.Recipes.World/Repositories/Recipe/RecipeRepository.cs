@@ -160,7 +160,7 @@
             return await query.ToListAsync();
         }
 
-        public async Task<IEnumerable<Recipe>> GetRecipesByDifficultyAsync(Difficulty difficulty)
+        public async Task<IReadOnlyCollection<Recipe>> GetRecipesByDifficultyAsync(Difficulty? difficulty)
         {
           return await _context.Recipes
               .Where(r => r.Difficulty == difficulty)

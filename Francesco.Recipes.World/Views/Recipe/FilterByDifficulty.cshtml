@@ -7,13 +7,14 @@
 
 <h1>Filter Recipes by Difficulty</h1>
 
-<form asp-action="FilterByDifficulty" method="get">
+<form asp-action="FilterByDifficulty" method="get" id="filterForm">
     <div class="form-group">
         <label asp-for="SelectedDifficulty" class="control-label"></label>
-        <select asp-for="SelectedDifficulty" class="form-control" asp-items="Html.GetEnumSelectList<Difficulty>()"></select>
+        <select asp-for="SelectedDifficulty" class="form-control" asp-items="Html.GetEnumSelectList<Difficulty>()" class="form-select" onchange="submitForm()">
+            <option value="">All Difficulties</option>
+        </select>
         <span asp-validation-for="SelectedDifficulty" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Filter</button>
 </form>
 
 @if (Model.Recipes != null && Model.Recipes.Any())
@@ -22,7 +23,7 @@
     <ul>
         @foreach (var recipe in Model.Recipes)
         {
-            <li>@recipe.Name - @recipe.Difficulty</li>
+            <li>@recipe.Name - @recipe.Difficulty.</li>
         }
     </ul>
 }
@@ -32,5 +33,10 @@ else
 }
 
 @section Scripts {
+    <script>
+        function submitForm() {
+            document.getElementById('filterForm').submit();
+        }
+    </script>
     @await Html.PartialAsync("_ValidationScriptsPartial")
-    }
+}

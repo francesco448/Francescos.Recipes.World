@@ -5,7 +5,6 @@
     using Francesco.Recipes.World.Repositories.Ingredient;
     using Francesco.Recipes.World.Repositories.Recipe;
     using Francesco.Recipes.World.Repositories.Unit;
-    using Francesco.Recipes.World.Views.Recipe;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -24,6 +23,8 @@
             _categoryRepository = categoryRepository;
             _ingredientRepository = ingredientRepository;
         }
+
+        public IReadOnlyCollection<Recipe> Recipes { get; set; }
 
         // GET: /Recipe/AddOrCreateIngredient
         [HttpGet("{recipeId}/AddOrCreateIngredient")]
@@ -140,17 +141,8 @@
         [HttpGet("FilterByDifficulty")]
         public async Task<IActionResult> FilterByDifficulty(Difficulty? difficulty)
         {
-            var viewModel = new FilterByDifficultyViewModel
-            {
-                SelectedDifficulty = difficulty,
-            };
-
-            if (difficulty.HasValue)
-            {
-                viewModel.Recipes = (await _recipeRepository.GetRecipesByDifficultyAsync(difficulty.Value)).ToList();
-            }
-
-            return View(viewModel);
+            Recipes = await _recipeRepository.GetRecipesByDifficultyAsync(difficulty);
+            return View(Recipes);
         }
     }
 }
