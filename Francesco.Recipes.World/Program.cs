@@ -1,8 +1,11 @@
 ﻿using Francesco.Recipes.World.Data;
-
-using Francesco.Recipes.World.Repositories;
-
-using FrancescoRecipesWorld.Repositories;
+using Francesco.Recipes.World.Repositories.Category;
+using Francesco.Recipes.World.Repositories.Ingredient;
+using Francesco.Recipes.World.Repositories.Instruction;
+using Francesco.Recipes.World.Repositories.MediaFile;
+using Francesco.Recipes.World.Repositories.Recipe;
+using Francesco.Recipes.World.Repositories.ShoppingList;
+using Francesco.Recipes.World.Repositories.Unit;
 
 using Microsoft.AspNetCore.Identity;
 
@@ -34,6 +37,12 @@ builder.Services.AddScoped<IUnitRepository, UnitRepository>();
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
+builder.Services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
+
+builder.Services.AddScoped<IMediaFileRepository, MediaFileRepository>();
+
+builder.Services.AddScoped<IInstructionRepository, InstructionRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -44,6 +53,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+Console.WriteLine("Standard Numeric Format Specifiers");
 
 app.UseHttpsRedirection();
 
