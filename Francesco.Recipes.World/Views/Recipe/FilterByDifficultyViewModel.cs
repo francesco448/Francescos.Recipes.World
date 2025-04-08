@@ -7,6 +7,6 @@
     {
         public Difficulty? SelectedDifficulty { get; set; }
 
-        public List<Recipe> Recipes { get; set; } = new List<Recipe>();
+        public IReadOnlyCollection<Recipe> Recipes { get; set; } = new List<Recipe>();
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Francesco.Recipes.World.Models.BackendModels.Shoppinglist
 {
-    using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
+    using Francesco.Recipes.World.Models.BackendModels.RecipeShoppingList;
 
     public class ShoppingList : ITimeStampedEntity
     {
@@ -10,6 +10,6 @@
 
         public DateTime? ModifiedAt { get; set; }
 
-        public virtual ICollection<RecipeIngredientShoppingList> RecipeIngredientShoppingLists { get; set; } = new List<RecipeIngredientShoppingList>();
+        public virtual ICollection<RecipeShoppingList> RecipeShoppingList { get; set; } = new List<RecipeShoppingList>();
     }
 }

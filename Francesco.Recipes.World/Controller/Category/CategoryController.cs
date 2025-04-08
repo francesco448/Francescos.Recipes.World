@@ -5,6 +5,7 @@
     using Francesco.Recipes.World.Repositories.Category;
     using Microsoft.AspNetCore.Mvc;
 
+    [ValidateAntiForgeryToken]
     [Route("Category")]
 
     public class CategoryController : Controller
@@ -37,7 +38,7 @@
         public async Task<ActionResult<IEnumerable<Recipe>>> GetRecipesByCategory(Guid id)
         {
                 var recipes = await _categoryRepository.GetRecipesByCategoryAsync(id);
-                return Ok(recipes);
+                return View(recipes);
         }
     }
 }
