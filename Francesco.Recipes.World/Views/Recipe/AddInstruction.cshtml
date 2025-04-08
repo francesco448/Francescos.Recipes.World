@@ -1,0 +1,59 @@
+﻿@model Francesco.Recipes.World.Models.BackendModels.Recipe.Recipe
+
+@{
+	ViewData["Title"] = "Add Instructions";
+}
+
+<h1>Add Instructions to @Model.Name</h1>
+
+<div class="instructions-list">
+	<h3>Existing Instructions</h3>
+	<ul>
+		@foreach (var instruction in Model.Instructions.OrderBy(i => i.Number))
+		{
+			<li>@instruction.Number. @instruction.Description</li>
+		}
+	</ul>
+</div>
+
+<div class="add-instruction-form">
+	<h3>Add New Instruction</h3>
+	<form id="instruction-form" method="post" asp-action="AddInstruction" asp-controller="Recipe">
+		<input type="hidden" name="recipeId" value="@Model.Id" />
+		<div class="form-group">
+			<label for="description">Description</label>
+			<input type="text" class="form-control" id="description" name="description" required />
+		</div>
+		<div class="form-group">
+			<label for="number">Number</label>
+			<input type="number" class="form-control" id="number" name="number" required min="1" />
+		</div>
+		<button type="submit" class="btn btn-primary" onclick="addInstructionToRecipe()">Add Instruction</button>
+	</form>
+</div>
+
+@section Scripts {
+	<script>
+		async function addInstructionToRecipe() {
+			var form = document.getElementById('instruction-form');
+			var recipeId = form.querySelector('input[name="recipeId"]').value;
+			var description = form.querySelector('input[name="description"]').value;
+			var number = form.querySelector('input[name="number"]').value;
+
+			var response = await fetch('/Recipe/' + recipeId + '/AddInstruction', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ recipeId: recipeId, description: description, number: number })
+			});
+
+			if (response.ok) {
+				location.reload();
+			} else {
+				alert('Failed to add instruction.');
+			}
+		}
+	</script>
+}
+
