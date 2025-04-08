@@ -1,18 +1,19 @@
-﻿
-namespace Francesco.Recipes.World.Repositories.ShoppingList
+﻿namespace Francesco.Recipes.World.Repositories.ShoppingList
 {
+    using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
-    using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
 
     public interface IShoppingListRepository
     {
-        Task AddIngredientToShoppingListAsync(Guid recipeIngredientId, Guid shoppingListId);
+        Task AddIngredientsToShoppingListAsync(Guid shoppingListId, List<Guid> ingredientIds);
 
-        Task RemoveRecipeIngredientFromShoppingListAsync(Guid recipeIngredientId);
+        Task<IEnumerable<RecipeIngredientShoppingList>> GetIngredientsOfRecipeInListAsync(Guid shoppingListRecipeId);
 
-        Task RemoveRecipeFromShoppingListIfEmptyAsync(Guid recipeId, Guid shoppingListId);
+        Task UpdateIngredientCheckedAsync(Guid shoppingListRecipeId, Guid recipeIngredientId, bool isChecked);
 
-        Task<IEnumerable<ShoppingList>> GetShoppingListsByIngredientOfRecipeAsync(Guid ingredientId, Guid recipeId);
+        Task RemoveRecipeIfEmptyAsync(Guid shoppingListRecipeId);
+
+        Task DeleteShoppingListAsync(Guid shoppingListId);
 
         Task<Recipe?> GetRecipeByNameAndImageAsync(string recipeName, string imageFileName);
     }

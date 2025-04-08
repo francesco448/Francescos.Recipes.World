@@ -3,6 +3,7 @@
     using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
+    using Francesco.Recipes.World.Models.BackendModels.RecipeShoppingList;
     using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
     using Microsoft.EntityFrameworkCore;
 
@@ -15,92 +16,162 @@
             _context = context;
         }
 
-        public async Task AddIngredientToShoppingListAsync(Guid recipeIngredientId, Guid shoppingListId)
+        public async Task AddIngredientsToShoppingListAsync(Guid recipeId, List<Guid> ingredientIds)
         {
-            var existingEntry = await _context.RecipeIngredientsShoppingLists
-                .FirstOrDefaultAsync(risl => risl.RecipeIngredient.Id == recipeIngredientId && risl.ShoppingList.Id == shoppingListId);
-
-            if (existingEntry != null)
+            if (ingredientIds == null || !ingredientIds.Any())
             {
-                return;
+                throw new ArgumentNullException(nameof(ingredientIds));
             }
 
-            var recipeIngredient = await _context.RecipeIngredients
-                .FirstOrDefaultAsync(ri => ri.Id == recipeIngredientId);
+            var recipe = await _context.Recipes
+                .Include(r => r.RecipeIngredients)
+                .FirstOrDefaultAsync(r => r.Id == recipeId);
 
-            if (recipeIngredient == null)
+            if (recipe == null)
             {
-                throw new InvalidOperationException($"Recipe ingredient with ID {recipeIngredientId} not found.");
+                throw new Exception("Rezept nicht gefunden.");
             }
 
             var shoppingList = await _context.ShoppingLists
-                .FirstOrDefaultAsync(sl => sl.Id == shoppingListId);
+                .Include(sl => sl.RecipeShoppingList)
+                    .ThenInclude(rsl => rsl.SelectedIngredients)
+                        .ThenInclude(si => si.RecipeIngredient)
+                .Include(sl => sl.RecipeShoppingList)
+                    .ThenInclude(rsl => rsl.Recipe)
+                .FirstOrDefaultAsync(sl => sl.RecipeShoppingList.Any(rsl => rsl.Recipe.Id == recipeId));
+
+            var recipeIngredients = await _context.RecipeIngredients
+                .Where(ri => ingredientIds.Contains(ri.Id) && ri.Recipe.Id == recipeId)
+                .ToListAsync();
+
+            if (!recipeIngredients.Any())
+            {
+                throw new Exception("Keine gültigen Zutaten gefunden.");
+            }
 
             if (shoppingList == null)
             {
-                throw new InvalidOperationException($"Shopping list with ID {shoppingListId} not found.");
+                shoppingList = new ShoppingList
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = null,
+                    RecipeShoppingList = new List<RecipeShoppingList>(),
+                };
+
+                var newRecipeList = new RecipeShoppingList
+                {
+                    Id = Guid.NewGuid(),
+                    Recipe = recipe,
+                    SelectedIngredients = recipeIngredients.Select(ri => new RecipeIngredientShoppingList
+                    {
+                        Id = Guid.NewGuid(),
+                        RecipeIngredient = ri,
+                        IsChecked = false,
+                    }).ToList(),
+                };
+
+                shoppingList.RecipeShoppingList.Add(newRecipeList);
+                _context.ShoppingLists.Add(shoppingList);
+            }
+            else
+            {
+                var existingRecipeList = shoppingList.RecipeShoppingList
+                    .FirstOrDefault(rsl => rsl.Recipe.Id == recipeId);
+
+                if (existingRecipeList == null)
+                {
+                    existingRecipeList = new RecipeShoppingList
+                    {
+                        Id = Guid.NewGuid(),
+                        Recipe = recipe,
+                        SelectedIngredients = new List<RecipeIngredientShoppingList>(),
+                    };
+
+                    shoppingList.RecipeShoppingList.Add(existingRecipeList);
+                }
+
+                foreach (var ri in recipeIngredients)
+                {
+                    var alreadyExists = existingRecipeList.SelectedIngredients
+                        .Any(si => si.RecipeIngredient.Id == ri.Id);
+
+                    if (!alreadyExists)
+                    {
+                        existingRecipeList.SelectedIngredients.Add(new RecipeIngredientShoppingList
+                        {
+                            Id = Guid.NewGuid(),
+                            RecipeIngredient = ri,
+                            IsChecked = false,
+                        });
+                    }
+                }
+
+                shoppingList.ModifiedAt = DateTime.UtcNow;
+            }
+        }
+
+        public async Task<IEnumerable<RecipeIngredientShoppingList>> GetIngredientsOfRecipeInListAsync(Guid shoppingListRecipeId)
+        {
+            return await _context.RecipeIngredientsShoppingLists
+                .AsNoTracking()
+                .Include(i => i.RecipeIngredient)
+                    .ThenInclude(ri => ri.Ingredient)
+                .Include(i => i.RecipeIngredient.Unit)
+                .Where(i => i.RecipeShoppingList.Id == shoppingListRecipeId)
+                .ToListAsync();
+        }
+
+        public async Task UpdateIngredientCheckedAsync(Guid shoppingListRecipeId, Guid recipeIngredientId, bool isChecked)
+        {
+            var item = await _context.RecipeIngredientsShoppingLists
+                .FirstOrDefaultAsync(i =>
+                    i.RecipeShoppingList.Id == shoppingListRecipeId &&
+                    i.RecipeIngredient.Id == recipeIngredientId);
+
+            if (item == null)
+            {
+                throw new Exception("Zutat nicht gefunden.");
             }
 
-            var newEntry = new RecipeIngredientShoppingList
-            {
-                RecipeIngredient = recipeIngredient,
-                ShoppingList = shoppingList,
-            };
-
-            _context.RecipeIngredientsShoppingLists.Add(newEntry);
+            item.IsChecked = isChecked;
             await _context.SaveChangesAsync();
         }
 
-        public async Task RemoveRecipeIngredientFromShoppingListAsync(Guid recipeIngredientId)
+        public async Task RemoveRecipeIfEmptyAsync(Guid shoppingListRecipeId)
         {
-            var entry = await _context.RecipeIngredientsShoppingLists
-                .FirstOrDefaultAsync(risl => risl.RecipeIngredient.Id == recipeIngredientId);
+            var recipeEntry = await _context.RecipeShoppingLists
+                .Include(r => r.SelectedIngredients)
+                .FirstOrDefaultAsync(r => r.Id == shoppingListRecipeId);
 
-            if (entry != null)
+            if (recipeEntry != null && !recipeEntry.SelectedIngredients.Any())
             {
-                _context.RecipeIngredientsShoppingLists.Remove(entry);
+                _context.RecipeShoppingLists.Remove(recipeEntry);
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task RemoveRecipeFromShoppingListIfEmptyAsync(Guid recipeId, Guid shoppingListId)
+        public async Task DeleteShoppingListAsync(Guid shoppingListId)
         {
-            var hasIngredients = await _context.RecipeIngredientsShoppingLists
-                .AnyAsync(risl => risl.RecipeIngredient.Recipe.Id == recipeId && risl.ShoppingList.Id == shoppingListId);
+            var list = await _context.ShoppingLists
+                .Include(sl => sl.RecipeShoppingList)
+                    .ThenInclude(r => r.SelectedIngredients)
+                .FirstOrDefaultAsync(sl => sl.Id == shoppingListId);
 
-            if (!hasIngredients)
+            if (list != null)
             {
-                var shoppingList = await _context.ShoppingLists
-                    .Include(sl => sl.RecipeIngredientShoppingLists)
-                    .FirstOrDefaultAsync(sl => sl.Id == shoppingListId);
-
-                if (shoppingList != null)
-                {
-                    var recipeToRemove = shoppingList.RecipeIngredientShoppingLists
-                        .FirstOrDefault(risl => risl.RecipeIngredient.Recipe.Id == recipeId);
-
-                    if (recipeToRemove != null)
-                    {
-                        _context.RecipeIngredientsShoppingLists.Remove(recipeToRemove);
-                        await _context.SaveChangesAsync();
-                    }
-                }
+                _context.ShoppingLists.Remove(list);
+                await _context.SaveChangesAsync();
             }
-        }
-
-        public async Task<IEnumerable<ShoppingList>> GetShoppingListsByIngredientOfRecipeAsync(Guid ingredientId, Guid recipeId)
-        {
-            return await _context.ShoppingLists
-                .Where(sl => sl.RecipeIngredientShoppingLists.Any(risl => risl.RecipeIngredient.Ingredient.Id == ingredientId && risl.RecipeIngredient.Recipe.Id == recipeId))
-                .ToListAsync();
         }
 
         public async Task<Recipe?> GetRecipeByNameAndImageAsync(string recipeName, string imageFileName)
         {
             return await _context.Recipes
-                      .Where(r => r.Name == recipeName && r.MediaFiles.Any(mf => mf.FileName == imageFileName))
-                      .Include(r => r.MediaFiles.Where(mf => mf.FileName == imageFileName))
-                      .FirstOrDefaultAsync();
+                .AsNoTracking()
+                .Where(r => r.Name == recipeName && r.MediaFiles.Any(mf => mf.FileName == imageFileName))
+                .Include(r => r.MediaFiles.Where(mf => mf.FileName == imageFileName))
+                .FirstOrDefaultAsync();
         }
     }
 }
