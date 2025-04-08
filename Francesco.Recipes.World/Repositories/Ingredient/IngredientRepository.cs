@@ -1,8 +1,8 @@
-﻿namespace Francesco.Recipes.World.Repositories.Ingredient
+﻿
+namespace Francesco.Recipes.World.Repositories.Ingredient
 {
     using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Models.BackendModels.Ingredient;
-    using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient;
     using Microsoft.EntityFrameworkCore;
 
@@ -16,48 +16,29 @@
             _context = context;
         }
 
-        public async Task<Ingredient> CreateIngredientToRecipeAsync(Recipe recipe, string ingredientName)
+        public async Task UpdateRecipeIngredientAsync(RecipeIngredient recipeIngredient)
         {
-            if (recipe is null)
+            if (recipeIngredient == null)
             {
-                throw new ArgumentException("Recipe not found", nameof(recipe));
+                throw new ArgumentNullException(nameof(recipeIngredient));
             }
 
-            var newIngredient = new Ingredient
-            {
-                Id = Guid.NewGuid(),
-                Name = ingredientName,
-            };
+            var existingRecipeIngredient = await _context.RecipeIngredients
+                .Include(ri => ri.Ingredient)
+                .Include(ri => ri.Unit)
+                .FirstOrDefaultAsync(ri => ri.Id == recipeIngredient.Id);
 
-            var recipeIngredient = new RecipeIngredient
+            if (existingRecipeIngredient == null)
             {
-                Id = Guid.NewGuid(),
-                Recipe = recipe,
-                Ingredient = newIngredient,
-                Quantity = 1,
-            };
+                throw new InvalidOperationException($"RecipeIngredient with ID {recipeIngredient.Id} not found.");
+            }
 
-            _context.Ingredients.Add(newIngredient);
-            _context.RecipeIngredients.Add(recipeIngredient);
+            existingRecipeIngredient.Quantity = recipeIngredient.Quantity;
+            existingRecipeIngredient.Ingredient = recipeIngredient.Ingredient;
+            existingRecipeIngredient.Unit = recipeIngredient.Unit;
+
+            _context.RecipeIngredients.Update(existingRecipeIngredient);
             await _context.SaveChangesAsync();
-
-            return newIngredient;
-        }
-
-        public async Task RemoveIngredientFromRecipeAsync(Recipe recipe, Guid ingredientId)
-        {
-            if (recipe == null)
-            {
-                throw new ArgumentNullException(nameof(recipe));
-            }
-
-            var ingredientToRemove = recipe.RecipeIngredients.FirstOrDefault(i => i.Id == ingredientId);
-
-            if (ingredientToRemove != null)
-            {
-                recipe.RecipeIngredients.Remove(ingredientToRemove);
-                await _context.SaveChangesAsync();
-            }
         }
 
         public async Task<List<Ingredient>> GetIngredientsByNameAsync(string name)
