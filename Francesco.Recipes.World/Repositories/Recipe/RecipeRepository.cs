@@ -5,7 +5,6 @@
     using Francesco.Recipes.World.Models.BackendModels.Ingredient;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient;
-    using Francesco.Recipes.World.Models.BackendModels.Unit;
     using Francesco.Recipes.World.Repositories.Ingredient;
     using Francesco.Recipes.World.Repositories.Unit;
     using Microsoft.EntityFrameworkCore;
@@ -28,6 +27,17 @@
         {
             var recipe = await _context.Recipes.FindAsync(recipeId);
             return recipe ?? throw new InvalidDataException($"Address {recipeId} not found.");
+        }
+
+        public async Task<Recipe?> GetRecipeByIdAsync(Guid recipeId)
+        {
+            return await _context.Recipes
+         .Include(r => r.RecipeIngredients)
+             .ThenInclude(ri => ri.Ingredient)
+         .Include(r => r.RecipeIngredients)
+             .ThenInclude(ri => ri.Unit)
+         .Include(r => r.MediaFiles)
+         .FirstOrDefaultAsync(r => r.Id == recipeId);
         }
 
         public async Task AddOrCreateIngredientToRecipeAsync(Guid recipeId, string ingredientName, int quantity, Guid unitId)
@@ -77,13 +87,13 @@
         }
 
         public async Task<Recipe> CreateRecipeForCategoryAsync(
-            Category category,
-            string name,
-            string description,
-            Difficulty difficulty,
-            int servings,
-            TimeSpan preparationTime,
-            TimeSpan cookingTime)
+       Category category,
+       string name,
+       string description,
+       Difficulty difficulty,
+       int servings,
+       TimeSpan preparationTime,
+       TimeSpan cookingTime)
         {
             if (category == null)
             {
@@ -162,14 +172,21 @@
 
         public async Task<IReadOnlyCollection<Recipe>> GetRecipesByDifficultyAsync(Difficulty? difficulty)
         {
-          return await _context.Recipes
-              .Where(r => r.Difficulty == difficulty)
-              .ToListAsync();
-        }
+            if (!difficulty.HasValue)
+            {
+                return await _context.Recipes
+                    .Include(r => r.Category)
+                    .Include(r => r.RecipeIngredients)
+                        .ThenInclude(ri => ri.Ingredient)
+                    .ToListAsync();
+            }
 
-        public async Task<Unit> AddUnitToRecipeAsync(string name, string symbol)
-        {
-            return await _unitRepository.AddUnitAsync(name, symbol);
+            return await _context.Recipes
+                .Where(r => r.Difficulty == difficulty.Value)
+                .Include(r => r.Category)
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)
+                .ToListAsync();
         }
     }
 }
