@@ -9,8 +9,7 @@
     using Francesco.Recipes.World.Models.BackendModels.MediaFile;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient;
-using Francesco.Recipes.World.Models.BackendModels.RecipeShoppingList;
-using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
+    using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
     using Francesco.Recipes.World.Models.BackendModels.Unit;
     using Microsoft.EntityFrameworkCore;
 
@@ -36,8 +35,6 @@ using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
         public DbSet<Favorit> Favorits => Set<Favorit>();
 
         public DbSet<RecipeIngredientShoppingList> RecipeIngredientsShoppingLists => Set<RecipeIngredientShoppingList>();
-
-        public DbSet<RecipeShoppingList> RecipeShoppingLists => Set<RecipeShoppingList>();
 
         public DbSet<ShoppingList> ShoppingLists => Set<ShoppingList>();
 

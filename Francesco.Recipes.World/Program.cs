@@ -1,12 +1,13 @@
 ﻿using Francesco.Recipes.World.Data;
 using Francesco.Recipes.World.Repositories.Category;
-using Francesco.Recipes.World.Repositories.Favorit;
 using Francesco.Recipes.World.Repositories.Ingredient;
 using Francesco.Recipes.World.Repositories.Instruction;
 using Francesco.Recipes.World.Repositories.MediaFile;
 using Francesco.Recipes.World.Repositories.Recipe;
 using Francesco.Recipes.World.Repositories.ShoppingList;
 using Francesco.Recipes.World.Repositories.Unit;
+
+using Microsoft.AspNetCore.Identity;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,9 @@ var connectionString = builder.Configuration.GetConnectionString("FrancescosReci
 
 services.AddDbContext<FrancescosRecipesWorldDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<FrancescosRecipesWorldDbContext>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -38,8 +42,6 @@ builder.Services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
 builder.Services.AddScoped<IMediaFileRepository, MediaFileRepository>();
 
 builder.Services.AddScoped<IInstructionRepository, InstructionRepository>();
-
-builder.Services.AddScoped<IFavoritRepository, FavoritRepository>();
 
 var app = builder.Build();
 
@@ -59,6 +61,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.MapDefaultControllerRoute();
 

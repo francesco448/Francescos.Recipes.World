@@ -1,72 +1,42 @@
-﻿@using Francesco.Recipes.World.Models.BackendModels.Recipe
-@model Francesco.Recipes.World.Views.Recipe.FilterByDifficultyViewModel
+﻿    @model Francesco.Recipes.World.Views.Recipe.FilterByDifficultyViewModel
+    @using Francesco.Recipes.World.Models.BackendModels.Recipe
 
-<h1>Rezepte nach Schwierigkeitsgrad</h1>
+@{
+    ViewData["Title"] = "Filter Recipes by Difficulty";
+}
 
-<div class="mb-3">
-	<a asp-controller="Recipe" asp-action="Create" class="btn btn-primary">Neues Rezept erstellen</a>
-</div>
+<h1>Filter Recipes by Difficulty</h1>
 
-<div class="row mb-4">
-	<div class="col-md-6">
-		<form asp-controller="Recipe" asp-action="FilterByDifficulty" method="get" id="filterForm">
-			<div class="form-group">
-				<label asp-for="SelectedDifficulty" class="form-label">Schwierigkeitsgrad</label>
-				<select asp-for="SelectedDifficulty" asp-items="Html.GetEnumSelectList<Difficulty>()" class="form-select" onchange="submitForm()">
-					<option value="">Alle Schwierigkeitsgrade</option>
-				</select>
-			</div>
-		</form>
+<form asp-action="FilterByDifficulty" method="get" id="filterForm">
+    <div class="form-group">
+        <label asp-for="SelectedDifficulty" class="control-label"></label>
+        <select asp-for="SelectedDifficulty" class="form-control" asp-items="Html.GetEnumSelectList<Difficulty>()" class="form-select" onchange="submitForm()">
+            <option value="">All Difficulties</option>
+        </select>
+        <span asp-validation-for="SelectedDifficulty" class="text-danger"></span>
+    </div>
+</form>
 
-	</div>
-</div>
-
-<div class="row">
-	@if (Model?.Recipes != null && Model.Recipes.Any())
-	{
-		<div class="table-responsive">
-			<table class="table table-striped">
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Beschreibung</th>
-						<th>Schwierigkeitsgrad</th>
-						<th>Portionen</th>
-						<th>Zubereitungszeit</th>
-						<th>Aktionen</th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var recipe in Model.Recipes)
-					{
-						<tr>
-							<td>@recipe.Name</td>
-							<td>@(recipe.Description?.Length > 100 ? recipe.Description.Substring(0, 100) + "..." : recipe.Description)</td>
-							<td>@recipe.?Difficulty</td>
-							<td>@recipe.Servings</td>
-							<td>@($"{recipe.PreparationTime.TotalMinutes} Min.")</td>
-							<td>
-								<a asp-controller="Recipe" asp-action="Details" asp-route-id="@recipe.Id" class="btn btn-sm btn-info">Details</a>
-								<a asp-controller="Recipe" asp-action="Edit" asp-route-id="@recipe.Id" class="btn btn-sm btn-primary">Bearbeiten</a>
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		</div>
-	}
-	else
-	{
-		<div class="col-12">
-			<p>Keine Rezepte gefunden.</p>
-		</div>
-	}
-</div>
+@if (Model.Recipes != null && Model.Recipes.Any())
+{
+    <h2>Filtered Recipes</h2>
+    <ul>
+        @foreach (var recipe in Model.Recipes)
+        {
+            <li>@recipe.Name - @recipe.Difficulty.</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No recipes found for the selected difficulty.</p>
+}
 
 @section Scripts {
-	<script>
-		function submitForm() {
-			document.getElementById('filterForm').submit();
-		}
-	</script>
+    <script>
+        function submitForm() {
+            document.getElementById('filterForm').submit();
+        }
+    </script>
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

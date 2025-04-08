@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -44,14 +44,6 @@
   </ItemGroup>
 <ItemGroup>
   <AdditionalFiles Include=".\stylecop.json" />
-</ItemGroup>
-<ItemGroup>
-  <Folder Include="Services\Category\" />
-  <Folder Include="Services\MediaFile\" />
-  <Folder Include="Services\Ingredient\" />
-  <Folder Include="Services\Instruction\" />
-  <Folder Include="Services\ShoppingList\" />
-  <Folder Include="Services\Recipe\" />
 </ItemGroup>
 
 </Project>
