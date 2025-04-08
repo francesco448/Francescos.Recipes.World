@@ -2,12 +2,10 @@
 {
     public interface IMediaFileRepository
     {
-        Task ReplaceInstructionImageAsync(Guid instructionId, IFormFile? newPhoto);
+        Task ReplaceInstructionImageAsync(Guid instructionId, Guid mediafileId, IFormFile? newPhoto);
 
         Task UploadInstructionImageAsync(Guid instructionId, IFormFile? photo);
 
-        Task ReplaceRecipeImageAsync(Guid recipeId, IFormFile? newPhoto);
-
-        Task UploadRecipeImageAsync(Guid recipeId, IFormFile? photo);
+        Task UploadRecipeMediaAsync(Guid recipeId, IFormFile mediaFile);
     }
 }
