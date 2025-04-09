@@ -1,7 +1,6 @@
 ﻿namespace Francesco.Recipes.World.Repositories.Instruction
 {
     using Francesco.Recipes.World.Models.BackendModels.Instruction;
-    using Francesco.Recipes.World.Models.BackendModels.Recipe;
 
     public interface IInstructionRepository
     {
@@ -11,6 +10,6 @@
 
         Task<List<Instruction>> GetInstructionsByRecipeIdAsync(Guid recipeId);
 
-        Task RemoveInstructionFromRecipeAsync(Recipe recipe, Guid instructionId);
+        Task RemoveInstructionFromRecipeAsync(Guid recipeId, Guid instructionId);
     }
 }

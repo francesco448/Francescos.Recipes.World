@@ -13,7 +13,7 @@
 
         Task RemoveIngredientFromRecipeAsync(Guid recipeId, Guid ingredientId);
 
-        Task<IEnumerable<Recipe>> GetRecipesByNameOrIngredientAsync(string name, string ingredient);
+        Task<IEnumerable<Recipe>> GetRecipesByNameAndIngredientAsync(string name, string ingredient);
 
         Task<IReadOnlyCollection<Recipe>> GetRecipesByDifficultyAsync(Difficulty? difficulty);
 

@@ -39,7 +39,7 @@ builder.Services.AddScoped<IMediaFileRepository, MediaFileRepository>();
 
 builder.Services.AddScoped<IInstructionRepository, InstructionRepository>();
 
-builder.Services.AddScoped<IFavoritRepository, FavoritRepository>();
+builder.Services.AddScoped<IFavoriteRepository, FavoritRepository>();
 
 var app = builder.Build();
 
@@ -64,6 +64,6 @@ app.MapDefaultControllerRoute();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Category}/{action=Index}/{id?}");
 
 app.Run();

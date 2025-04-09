@@ -37,7 +37,6 @@ namespace Francesco.Recipes.World.Repositories.Ingredient
             existingRecipeIngredient.Ingredient = recipeIngredient.Ingredient;
             existingRecipeIngredient.Unit = recipeIngredient.Unit;
 
-            _context.RecipeIngredients.Update(existingRecipeIngredient);
             await _context.SaveChangesAsync();
         }
 
@@ -77,7 +76,6 @@ namespace Francesco.Recipes.World.Repositories.Ingredient
 
             existingIngredient.Name = ingredient.Name;
 
-            _context.Ingredients.Update(existingIngredient);
             await _context.SaveChangesAsync();
         }
 

@@ -114,7 +114,6 @@
         public async Task<IEnumerable<RecipeIngredientShoppingList>> GetIngredientsOfRecipeInListAsync(Guid shoppingListRecipeId)
         {
             return await _context.RecipeIngredientsShoppingLists
-                .AsNoTracking()
                 .Include(i => i.RecipeIngredient)
                     .ThenInclude(ri => ri.Ingredient)
                 .Include(i => i.RecipeIngredient.Unit)
@@ -168,7 +167,6 @@
         public async Task<Recipe?> GetRecipeByNameAndImageAsync(string recipeName, string imageFileName)
         {
             return await _context.Recipes
-                .AsNoTracking()
                 .Where(r => r.Name == recipeName && r.MediaFiles.Any(mf => mf.FileName == imageFileName))
                 .Include(r => r.MediaFiles.Where(mf => mf.FileName == imageFileName))
                 .FirstOrDefaultAsync();

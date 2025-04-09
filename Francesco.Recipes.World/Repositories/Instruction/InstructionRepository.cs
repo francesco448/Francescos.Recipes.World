@@ -2,7 +2,6 @@
 {
     using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Models.BackendModels.Instruction;
-    using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Repositories.Recipe;
     using Microsoft.EntityFrameworkCore;
 
@@ -25,19 +24,19 @@
 
         public async Task<Instruction> CreateInstructionToRecipeAsync(Guid recipeId, string description, int number)
         {
-         var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
+            var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
 
-         if (string.IsNullOrWhiteSpace(description))
+            if (string.IsNullOrWhiteSpace(description))
             {
                 throw new ArgumentException("Description cannot be empty", nameof(description));
             }
 
-         if (number <= 0)
+            if (number <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(number), "Number must be greater than 0.");
             }
 
-         var newInstruction = new Instruction
+            var newInstruction = new Instruction
             {
                 Id = Guid.NewGuid(),
                 Description = description,
@@ -45,24 +44,28 @@
                 Recipe = recipe,
             };
 
-         _context.Instructions.Add(newInstruction);
-         await _context.SaveChangesAsync();
+            _context.Instructions.Add(newInstruction);
+            await _context.SaveChangesAsync();
 
-         return newInstruction;
+            return newInstruction;
         }
 
-        public async Task RemoveInstructionFromRecipeAsync(Recipe recipe, Guid instructionId)
+        public async Task RemoveInstructionFromRecipeAsync(Guid recipeId, Guid instructionId)
         {
-            if (recipe == null)
+            var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
+
+            if (recipe.Instructions == null || !recipe.Instructions.Any())
             {
-                throw new ArgumentNullException(nameof(recipe));
+                await _context.Entry(recipe)
+                    .Collection(r => r.Instructions)
+                    .LoadAsync();
             }
 
-            var instructionToRemove = recipe.Instructions.FirstOrDefault(i => i.Id == instructionId);
+            var instructionToRemove = recipe.Instructions?.FirstOrDefault(i => i.Id == instructionId);
 
             if (instructionToRemove != null)
             {
-                recipe.Instructions.Remove(instructionToRemove);
+                recipe.Instructions?.Remove(instructionToRemove);
                 await _context.SaveChangesAsync();
             }
         }

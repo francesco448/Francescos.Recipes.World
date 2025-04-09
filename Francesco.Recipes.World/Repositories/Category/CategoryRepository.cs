@@ -41,5 +41,12 @@
 
             return category.Recipes;
         }
+
+        public async Task<IEnumerable<Category>> GetAllCategoriesWithRecipesAsync()
+        {
+            return await _context.Categories
+                .Include(c => c.Recipes)
+                .ToListAsync();
+        }
     }
 }

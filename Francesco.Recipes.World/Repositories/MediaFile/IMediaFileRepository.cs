@@ -2,7 +2,7 @@
 {
     public interface IMediaFileRepository
     {
-        Task ReplaceInstructionImageAsync(Guid instructionId, Guid mediafileId, IFormFile? newPhoto);
+        Task ReplaceInstructionImageAsync(Guid instructionId, Guid mediaFileIdToReplace, string fileName, string mimeType, byte[] newMediaData);
 
         Task UploadInstructionImageAsync(Guid instructionId, IFormFile? photo);
 

@@ -2,6 +2,7 @@
 {
     using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Models.BackendModels.MediaFile;
+    using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Repositories.Instruction;
     using Francesco.Recipes.World.Repositories.Recipe;
 
@@ -18,13 +19,8 @@
             _recipeRepository = recipeRepository;
         }
 
-        public async Task ReplaceInstructionImageAsync(Guid instructionId, Guid mediaFileIdToReplace, IFormFile? newPhoto)
+        public async Task ReplaceInstructionImageAsync(Guid instructionId, Guid mediaFileIdToReplace, string fileName, string mimeType, byte[] newMediaData)
         {
-            if (newPhoto is null)
-            {
-                throw new ArgumentNullException(nameof(newPhoto));
-            }
-
             var instruction = await _instructionRepository.GetInstructionAsync(instructionId);
 
             var mediaToReplace = instruction.MediaFiles.FirstOrDefault(m => m.Id == mediaFileIdToReplace);
@@ -36,22 +32,17 @@
             _context.MediaFiles.Remove(mediaToReplace);
             await _context.SaveChangesAsync();
 
-            using (var memoryStream = new MemoryStream())
+            var newMedia = new MediaFile
             {
-                await newPhoto.CopyToAsync(memoryStream);
+                Id = Guid.NewGuid(),
+                FileName = fileName,
+                MimeType = mimeType,
+                Data = newMediaData,
+                Instruction = instruction,
+            };
 
-                var newMedia = new MediaFile
-                {
-                    Id = Guid.NewGuid(),
-                    FileName = newPhoto.FileName,
-                    MimeType = newPhoto.ContentType,
-                    Data = memoryStream.ToArray(),
-                    Instruction = instruction,
-                };
-
-                _context.MediaFiles.Add(newMedia);
-                await _context.SaveChangesAsync();
-            }
+            _context.MediaFiles.Add(newMedia);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UploadInstructionImageAsync(Guid instructionId, IFormFile? photo)
@@ -89,11 +80,6 @@
 
             var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
 
-            if (recipe == null)
-            {
-                throw new InvalidOperationException("The specified recipe does not exist.");
-            }
-
             var isImage = mediaFile.ContentType.StartsWith("image/");
             var isVideo = mediaFile.ContentType.StartsWith("video/");
 
@@ -104,21 +90,11 @@
 
             if (isImage)
             {
-                var existingImage = recipe.MediaFiles?.FirstOrDefault(m => m.MimeType?.StartsWith("image/") == true);
-                if (existingImage != null)
-                {
-                    _context.MediaFiles.Remove(existingImage);
-                    await _context.SaveChangesAsync();
-                }
+                await RemoveExistingMediaAsync(recipe, "image/");
             }
             else if (isVideo)
             {
-                var existingVideo = recipe.MediaFiles?.FirstOrDefault(m => m.MimeType?.StartsWith("video/") == true);
-                if (existingVideo != null)
-                {
-                    _context.MediaFiles.Remove(existingVideo);
-                    await _context.SaveChangesAsync();
-                }
+                await RemoveExistingMediaAsync(recipe, "video/");
             }
 
             using var memoryStream = new MemoryStream();
@@ -135,6 +111,16 @@
 
             _context.MediaFiles.Add(newMedia);
             await _context.SaveChangesAsync();
+        }
+
+        private async Task RemoveExistingMediaAsync(Recipe recipe, string mediaTypePrefix)
+        {
+            var existingMedia = recipe.MediaFiles?.FirstOrDefault(m => m.MimeType?.StartsWith(mediaTypePrefix) == true);
+            if (existingMedia != null)
+            {
+                _context.MediaFiles.Remove(existingMedia);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

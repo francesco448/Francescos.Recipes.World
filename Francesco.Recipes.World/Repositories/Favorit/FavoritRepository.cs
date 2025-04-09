@@ -4,7 +4,7 @@
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Microsoft.EntityFrameworkCore;
 
-    public class FavoritRepository : IFavoritRepository
+    public class FavoritRepository : IFavoriteRepository
     {
         private readonly FrancescosRecipesWorldDbContext _context;
 

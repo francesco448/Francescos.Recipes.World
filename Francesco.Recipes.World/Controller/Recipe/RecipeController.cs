@@ -1,6 +1,5 @@
 ﻿namespace Francesco.Recipes.World.Controller.Recipe
 {
-    using System.ComponentModel.DataAnnotations;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Repositories.Category;
     using Francesco.Recipes.World.Repositories.Favorit;
@@ -14,8 +13,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
 
-    [ValidateAntiForgeryToken]
-    [Route("Recipe")]
     public class RecipeController : Controller
     {
         private readonly IRecipeRepository _recipeRepository;
@@ -24,13 +21,18 @@
         private readonly IIngredientRepository _ingredientRepository;
         private readonly IMediaFileRepository _mediaFileRepository;
         private readonly IInstructionRepository _instructionRepository;
-        private readonly IFavoritRepository _favoritRepository;
+        private readonly IFavoriteRepository _favoriteRepository;
 
-        [Display(Name = "Schwierigkeitsgrad")]
-        [BindProperty(SupportsGet = true)]
-        public Difficulty? SelectedDifficulty { get; set; }
+        public IReadOnlyCollection<Recipe> Recipes { get; set; }
 
-        public RecipeController(IRecipeRepository recipeRepository, IUnitRepository unitRepository, ICategoryRepository categoryRepository, IIngredientRepository ingredientRepository, IMediaFileRepository mediaFileRepository, IInstructionRepository instructionRepository, IFavoritRepository favoritRepository)
+        public RecipeController(
+            IRecipeRepository recipeRepository,
+            IUnitRepository unitRepository,
+            ICategoryRepository categoryRepository,
+            IIngredientRepository ingredientRepository,
+            IMediaFileRepository mediaFileRepository,
+            IInstructionRepository instructionRepository,
+            IFavoriteRepository favoriteRepository)
         {
             _recipeRepository = recipeRepository;
             _unitRepository = unitRepository;
@@ -39,10 +41,8 @@
             Recipes = new List<Recipe>();
             _mediaFileRepository = mediaFileRepository;
             _instructionRepository = instructionRepository;
-            _favoritRepository = favoritRepository;
+            _favoriteRepository = favoriteRepository;
         }
-
-        public IReadOnlyCollection<Recipe> Recipes { get; set; }
 
         // GET: /Recipe/{recipeId}/AddOrCreateIngredient
         [HttpGet("{recipeId}/AddOrCreateIngredient")]
@@ -71,24 +71,20 @@
         [HttpGet("CategoryRecipes")]
         public async Task<IActionResult> CategoryRecipes()
         {
-            var categories = await _categoryRepository.GetAllCategoriesAsync();
-            var viewModel = new List<CategoryRecipesViewModel>();
+            var categories = await _categoryRepository.GetAllCategoriesWithRecipesAsync();
 
-            foreach (var category in categories)
+            var viewModel = categories.Select(c => new CategoryRecipesViewModel
             {
-                var recipes = await _categoryRepository.GetRecipesByCategoryAsync(category.Id);
-                viewModel.Add(new CategoryRecipesViewModel
-                {
-                    Category = category,
-                    Recipes = recipes,
-                });
-            }
+                Category = c,
+                Recipes = c.Recipes,
+            }).ToList();
 
             return View(viewModel);
         }
 
         // POST: /Recipe/{recipeId}/AddOrCreateIngredient
         [HttpPost("{recipeId}/AddOrCreateIngredient")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddOrCreateIngredient(Guid recipeId, string ingredientName, int quantity, Guid unitId)
         {
             if (quantity <= 0)
@@ -123,6 +119,7 @@
 
         // POST: /Recipe/Create/{categoryId}
         [HttpPost("Create/{categoryId}")]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Create(Guid categoryId, string name, string description, Difficulty difficulty, int servings, TimeSpan preparationTime, TimeSpan cookingTime, IFormFile? photo)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -153,6 +150,7 @@
                 return NotFound($"Kategorie mit ID {categoryId} wurde nicht gefunden.");
             }
 
+            await _recipeRepository.CreateRecipeForCategoryAsync(categoryEntity, name, description, difficulty, servings, preparationTime, cookingTime);
             var recipe = await _recipeRepository.CreateRecipeForCategoryAsync(categoryEntity, name, description, difficulty, servings, preparationTime, cookingTime);
             if (photo != null)
             {
@@ -176,13 +174,13 @@
 
             ViewBag.RecipeId = recipeId;
             ViewBag.IngredientId = ingredientId;
-            ViewBag.IngredientName = ingredient.Name;
 
             return View();
         }
 
         // POST: /Recipe/{recipeId}/RemoveIngredient/{ingredientId}
         [HttpPost("{recipeId}/RemoveIngredient/{ingredientId}")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveIngredientConfirmed(Guid recipeId, Guid ingredientId)
         {
             await _recipeRepository.RemoveIngredientFromRecipeAsync(recipeId, ingredientId);
@@ -219,6 +217,7 @@
 
         // POST: /Recipe/{recipeId}/AddInstruction
         [HttpPost("{recipeId}/AddInstruction")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddInstruction(Guid recipeId, string description, int number)
         {
             try
@@ -239,23 +238,25 @@
         [HttpGet("Favorites")]
         public async Task<IActionResult> Favorites()
         {
-            var favoriteRecipes = await _favoritRepository.GetFavoriteRecipesAsync();
+            var favoriteRecipes = await _favoriteRepository.GetFavoriteRecipesAsync();
             return View(favoriteRecipes);
         }
 
         // POST: /Recipe/AddFavorite
         [HttpPost("AddFavorite")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFavorite(Guid recipeId)
         {
-            await _favoritRepository.AddFavoriteAsync(recipeId);
+            await _favoriteRepository.AddFavoriteAsync(recipeId);
             return RedirectToAction("Details", new { recipeId });
         }
 
         // POST: /Recipe/RemoveFavorite
         [HttpPost("RemoveFavorite")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFavorite(Guid recipeId)
         {
-            await _favoritRepository.RemoveFavoriteAsync(recipeId);
+            await _favoriteRepository.RemoveFavoriteAsync(recipeId);
             return RedirectToAction("Details", new { recipeId });
         }
     }

@@ -1,12 +1,7 @@
 ﻿namespace Francesco.Recipes.World.Controller.Category
 {
-    using Francesco.Recipes.World.Models.BackendModels.Category;
-    using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Repositories.Category;
     using Microsoft.AspNetCore.Mvc;
-
-    [ValidateAntiForgeryToken]
-    [Route("Category")]
 
     public class CategoryController : Controller
     {
@@ -19,7 +14,7 @@
 
         // GET: /Category
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> Index()
+        public async Task<IActionResult> Index()
         {
             var categories = await _categoryRepository.GetAllCategoriesAsync();
             return View(categories);
@@ -29,16 +24,16 @@
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Details(Guid id)
         {
-                var category = await _categoryRepository.GetCategoryByIdAsync(id);
-                return View(category);
+            var category = await _categoryRepository.GetCategoryByIdAsync(id);
+            return View(category);
         }
 
         // GET: /Category/{id}/recipes
         [HttpGet("{id:guid}/recipes")]
-        public async Task<ActionResult<IEnumerable<Recipe>>> GetRecipesByCategory(Guid id)
+        public async Task<IActionResult> GetRecipesByCategory(Guid id)
         {
-                var recipes = await _categoryRepository.GetRecipesByCategoryAsync(id);
-                return View(recipes);
+            var recipes = await _categoryRepository.GetRecipesByCategoryAsync(id);
+            return Ok(recipes);
         }
     }
 }

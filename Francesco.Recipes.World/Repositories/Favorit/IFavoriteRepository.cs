@@ -2,7 +2,7 @@
 {
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
 
-    public interface IFavoritRepository
+    public interface IFavoriteRepository
     {
         Task<IEnumerable<Recipe>> GetFavoriteRecipesAsync();
 

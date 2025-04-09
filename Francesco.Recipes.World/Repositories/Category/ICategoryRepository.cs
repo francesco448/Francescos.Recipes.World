@@ -13,5 +13,7 @@
         Task<IEnumerable<Category>> GetAllCategoriesAsync();
 
         Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(Guid categoryId);
+
+        Task<IEnumerable<Category>> GetAllCategoriesWithRecipesAsync();
     }
 }

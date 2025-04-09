@@ -4,9 +4,7 @@
     using Francesco.Recipes.World.Repositories.MediaFile;
     using Microsoft.AspNetCore.Mvc;
 
-    [ValidateAntiForgeryToken]
-
-    [Route("categories/{categoryId}/Recipe")]
+    [Route("Category/{categoryId}/Recipe")]
     public class MediaFileController : Controller
     {
         private readonly IMediaFileRepository _mediaFileRepository;
@@ -20,6 +18,7 @@
 
         // POST: /UploadImage
         [HttpPost("UploadImage")]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> UploadImage(Guid recipeId, IFormFile? mediaFile)
         {
             if (mediaFile is null)
@@ -43,6 +42,33 @@
         public IActionResult UploadImageView()
         {
             return View();
+        }
+
+        [HttpPost("ReplaceInstructionImage")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReplaceInstructionImage(Guid instructionId, Guid mediaFileIdToReplace, IFormFile? newPhoto)
+        {
+            if (newPhoto is null)
+            {
+                return BadRequest("Photo is required.");
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                await newPhoto.CopyToAsync(memoryStream);
+
+                var newMediaData = memoryStream.ToArray();
+
+                try
+                {
+                    await _mediaFileRepository.ReplaceInstructionImageAsync(instructionId, mediaFileIdToReplace, newPhoto.FileName, newPhoto.ContentType, newMediaData);
+                    return Ok("Image replaced successfully.");
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Internal server error: {ex.Message}");
+                }
+            }
         }
     }
 }

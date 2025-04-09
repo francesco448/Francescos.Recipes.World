@@ -10,7 +10,7 @@
 
         public virtual ShoppingList ShoppingList { get; set; } = new ShoppingList();
 
-        public virtual Recipe Recipe { get; set; } = new ();
+        public virtual Recipe Recipe { get; set; } = new Recipe();
 
         public virtual ICollection<RecipeIngredientShoppingList> SelectedIngredients { get; set; } = new List<RecipeIngredientShoppingList>();
     }

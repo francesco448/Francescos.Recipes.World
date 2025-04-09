@@ -37,6 +37,7 @@
          .Include(r => r.RecipeIngredients)
              .ThenInclude(ri => ri.Unit)
          .Include(r => r.MediaFiles)
+         .Include(r => r.Instructions)
          .FirstOrDefaultAsync(r => r.Id == recipeId);
         }
 
@@ -53,7 +54,7 @@
             var ingredients = await _ingredientRepository.GetIngredientsByNameAsync(ingredientName);
             Ingredient ingredient;
 
-            if (ingredients == null || !ingredients.Any())
+            if (!ingredients.Any())
             {
                 ingredient = new Ingredient
                 {
@@ -131,7 +132,6 @@
 
         public async Task RemoveIngredientFromRecipeAsync(Guid recipeId, Guid ingredientId)
         {
-            var recipe = await GetRecipeAsync(recipeId);
             var recipeIngredient = await _context.RecipeIngredients
                 .FirstOrDefaultAsync(ri => ri.Recipe.Id == recipeId && ri.Ingredient.Id == ingredientId);
 
@@ -144,7 +144,7 @@
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Recipe>> GetRecipesByNameOrIngredientAsync(string name, string ingredient)
+        public async Task<IEnumerable<Recipe>> GetRecipesByNameAndIngredientAsync(string name, string ingredient)
         {
             var query = _context.Recipes
                 .Include(r => r.RecipeIngredients)
