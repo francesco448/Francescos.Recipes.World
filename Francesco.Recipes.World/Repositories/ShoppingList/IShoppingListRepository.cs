@@ -2,10 +2,11 @@
 {
     using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
+    using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
 
     public interface IShoppingListRepository
     {
-        Task AddIngredientsToShoppingListAsync(Guid shoppingListId, List<Guid> ingredientIds);
+        Task<ShoppingList> AddIngredientsToShoppingListAsync(Guid recipeId, List<Guid> ingredientIds);
 
         Task<IEnumerable<RecipeIngredientShoppingList>> GetIngredientsOfRecipeInListAsync(Guid shoppingListRecipeId);
 

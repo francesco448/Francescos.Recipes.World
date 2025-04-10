@@ -16,7 +16,7 @@
             _context = context;
         }
 
-        public async Task AddIngredientsToShoppingListAsync(Guid recipeId, List<Guid> ingredientIds)
+        public async Task<ShoppingList> AddIngredientsToShoppingListAsync(Guid recipeId, List<Guid> ingredientIds)
         {
             if (ingredientIds == null || !ingredientIds.Any())
             {
@@ -29,13 +29,12 @@
 
             if (recipe == null)
             {
-                throw new Exception("Rezept nicht gefunden.");
+                throw new Exception("Recipe not found.");
             }
 
             var shoppingList = await _context.ShoppingLists
                 .Include(sl => sl.RecipeShoppingList)
                     .ThenInclude(rsl => rsl.SelectedIngredients)
-                        .ThenInclude(si => si.RecipeIngredient)
                 .Include(sl => sl.RecipeShoppingList)
                     .ThenInclude(rsl => rsl.Recipe)
                 .FirstOrDefaultAsync(sl => sl.RecipeShoppingList.Any(rsl => rsl.Recipe.Id == recipeId));
@@ -46,7 +45,7 @@
 
             if (!recipeIngredients.Any())
             {
-                throw new Exception("Keine gültigen Zutaten gefunden.");
+                throw new Exception("No valid ingredients found.");
             }
 
             if (shoppingList == null)
@@ -55,7 +54,6 @@
                 {
                     Id = Guid.NewGuid(),
                     CreatedAt = DateTime.UtcNow,
-                    ModifiedAt = null,
                     RecipeShoppingList = new List<RecipeShoppingList>(),
                 };
 
@@ -93,10 +91,7 @@
 
                 foreach (var ri in recipeIngredients)
                 {
-                    var alreadyExists = existingRecipeList.SelectedIngredients
-                        .Any(si => si.RecipeIngredient.Id == ri.Id);
-
-                    if (!alreadyExists)
+                    if (!existingRecipeList.SelectedIngredients.Any(si => si.RecipeIngredient.Id == ri.Id))
                     {
                         existingRecipeList.SelectedIngredients.Add(new RecipeIngredientShoppingList
                         {
@@ -109,6 +104,9 @@
 
                 shoppingList.ModifiedAt = DateTime.UtcNow;
             }
+
+            await _context.SaveChangesAsync();
+            return shoppingList;
         }
 
         public async Task<IEnumerable<RecipeIngredientShoppingList>> GetIngredientsOfRecipeInListAsync(Guid shoppingListRecipeId)
@@ -153,8 +151,6 @@
         public async Task DeleteShoppingListAsync(Guid shoppingListId)
         {
             var list = await _context.ShoppingLists
-                .Include(sl => sl.RecipeShoppingList)
-                    .ThenInclude(r => r.SelectedIngredients)
                 .FirstOrDefaultAsync(sl => sl.Id == shoppingListId);
 
             if (list != null)

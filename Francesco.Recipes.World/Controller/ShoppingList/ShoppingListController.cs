@@ -4,7 +4,6 @@
     using Francesco.Recipes.World.Models;
     using Francesco.Recipes.World.Repositories.ShoppingList;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
 
     public class ShoppingListController : Controller
     {
@@ -21,17 +20,17 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrAddIngredients([FromBody] CreateOrAddIngredientRequestModel request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (request == null || request.IngredientIds == null || !request.IngredientIds.Any())
             {
                 return BadRequest("No ingredients provided.");
             }
 
-            await _shoppingListRepository.AddIngredientsToShoppingListAsync(request.RecipeId, request.IngredientIds);
-
-            var shoppingList = await _context.ShoppingLists
-                .Include(sl => sl.RecipeShoppingList)
-                    .ThenInclude(rsl => rsl.Recipe)
-                .FirstOrDefaultAsync(sl => sl.RecipeShoppingList.Any(rsl => rsl.Recipe.Id == request.RecipeId));
+            var shoppingList = await _shoppingListRepository.AddIngredientsToShoppingListAsync(request.RecipeId, request.IngredientIds);
 
             if (shoppingList == null)
             {

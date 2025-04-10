@@ -52,9 +52,11 @@
             }
 
             var ingredients = await _ingredientRepository.GetIngredientsByNameAsync(ingredientName);
+            var exactMatch = ingredients
+                .FirstOrDefault(i => i.Name.Equals(ingredientName, StringComparison.OrdinalIgnoreCase));
             Ingredient ingredient;
 
-            if (!ingredients.Any())
+            if (exactMatch == null)
             {
                 ingredient = new Ingredient
                 {
@@ -66,7 +68,7 @@
             }
             else
             {
-                ingredient = ingredients.First();
+                ingredient = exactMatch;
             }
 
             var existingEntry = await _context.RecipeIngredients
@@ -83,6 +85,7 @@
                 Unit = unit,
                 Quantity = quantity,
             };
+
             _context.Add(recipeIngredient);
             await _context.SaveChangesAsync();
         }

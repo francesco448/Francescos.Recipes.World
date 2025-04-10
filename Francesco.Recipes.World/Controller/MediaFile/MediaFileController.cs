@@ -45,7 +45,7 @@
         }
 
         [HttpPost("ReplaceInstructionImage")]
-        [ValidateAntiForgeryToken]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> ReplaceInstructionImage(Guid instructionId, Guid mediaFileIdToReplace, IFormFile? newPhoto)
         {
             if (newPhoto is null)

@@ -92,7 +92,7 @@
             {
                 await RemoveExistingMediaAsync(recipe, "image/");
             }
-            else if (isVideo)
+            else
             {
                 await RemoveExistingMediaAsync(recipe, "video/");
             }

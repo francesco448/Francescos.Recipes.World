@@ -7,7 +7,6 @@ using Francesco.Recipes.World.Repositories.MediaFile;
 using Francesco.Recipes.World.Repositories.Recipe;
 using Francesco.Recipes.World.Repositories.ShoppingList;
 using Francesco.Recipes.World.Repositories.Unit;
-
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
