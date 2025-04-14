@@ -4,6 +4,7 @@ using Francesco.Recipes.World.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Francesco.Recipes.World.Migrations
 {
     [DbContext(typeof(FrancescosRecipesWorldDbContext))]
-    partial class FrancescosRecipesWorldDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250324124459_CreateNewTableRecipeIngredientShoppinglist")]
+    partial class CreateNewTableRecipeIngredientShoppinglist
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,13 +130,10 @@ namespace Francesco.Recipes.World.Migrations
                     b.Property<Guid?>("IngredientId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsChecked")
-                        .HasColumnType("bit");
-
                     b.Property<Guid>("RecipeIngredientId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("RecipeShoppingListId")
+                    b.Property<Guid>("ShoppingListId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -142,7 +142,7 @@ namespace Francesco.Recipes.World.Migrations
 
                     b.HasIndex("RecipeIngredientId");
 
-                    b.HasIndex("RecipeShoppingListId");
+                    b.HasIndex("ShoppingListId");
 
                     b.ToTable("RecipeIngredientsShoppingLists");
                 });
@@ -206,7 +206,7 @@ namespace Francesco.Recipes.World.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid?>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<TimeSpan>("CookingTime")
@@ -276,27 +276,6 @@ namespace Francesco.Recipes.World.Migrations
                     b.HasIndex("UnitId");
 
                     b.ToTable("RecipeIngredients");
-                });
-
-            modelBuilder.Entity("Francesco.Recipes.World.Models.BackendModels.RecipeShoppingList.RecipeShoppingList", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RecipeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ShoppingListId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecipeId");
-
-                    b.HasIndex("ShoppingListId");
-
-                    b.ToTable("RecipeShoppingLists");
                 });
 
             modelBuilder.Entity("Francesco.Recipes.World.Models.BackendModels.Shoppinglist.ShoppingList", b =>
@@ -415,15 +394,15 @@ namespace Francesco.Recipes.World.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Francesco.Recipes.World.Models.BackendModels.RecipeShoppingList.RecipeShoppingList", "RecipeShoppingList")
-                        .WithMany("SelectedIngredients")
-                        .HasForeignKey("RecipeShoppingListId")
+                    b.HasOne("Francesco.Recipes.World.Models.BackendModels.Shoppinglist.ShoppingList", "ShoppingList")
+                        .WithMany("RecipeIngredientShoppingLists")
+                        .HasForeignKey("ShoppingListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("RecipeIngredient");
 
-                    b.Navigation("RecipeShoppingList");
+                    b.Navigation("ShoppingList");
                 });
 
             modelBuilder.Entity("Francesco.Recipes.World.Models.BackendModels.Instruction.Instruction", b =>
@@ -456,19 +435,15 @@ namespace Francesco.Recipes.World.Migrations
 
             modelBuilder.Entity("Francesco.Recipes.World.Models.BackendModels.Recipe.Recipe", b =>
                 {
-                    b.HasOne("Francesco.Recipes.World.Models.BackendModels.Category.Category", "Category")
+                    b.HasOne("Francesco.Recipes.World.Models.BackendModels.Category.Category", null)
                         .WithMany("Recipes")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId");
 
                     b.HasOne("Francesco.Recipes.World.Models.BackendModels.Favorit.Favorit", "Favorit")
                         .WithMany("Recipe")
                         .HasForeignKey("FavoritId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Category");
 
                     b.Navigation("Favorit");
                 });
@@ -500,25 +475,6 @@ namespace Francesco.Recipes.World.Migrations
                     b.Navigation("Unit");
                 });
 
-            modelBuilder.Entity("Francesco.Recipes.World.Models.BackendModels.RecipeShoppingList.RecipeShoppingList", b =>
-                {
-                    b.HasOne("Francesco.Recipes.World.Models.BackendModels.Recipe.Recipe", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Francesco.Recipes.World.Models.BackendModels.Shoppinglist.ShoppingList", "ShoppingList")
-                        .WithMany("RecipeIngredientShoppingLists")
-                        .HasForeignKey("ShoppingListId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("ShoppingList");
-                });
-
             modelBuilder.Entity("Francesco.Recipes.World.Models.BackendModels.Category.Category", b =>
                 {
                     b.Navigation("Recipes");
@@ -548,11 +504,6 @@ namespace Francesco.Recipes.World.Migrations
                     b.Navigation("MediaFiles");
 
                     b.Navigation("RecipeIngredients");
-                });
-
-            modelBuilder.Entity("Francesco.Recipes.World.Models.BackendModels.RecipeShoppingList.RecipeShoppingList", b =>
-                {
-                    b.Navigation("SelectedIngredients");
                 });
 
             modelBuilder.Entity("Francesco.Recipes.World.Models.BackendModels.Shoppinglist.ShoppingList", b =>

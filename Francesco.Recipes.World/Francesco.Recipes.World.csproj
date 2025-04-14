@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -29,6 +29,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -41,12 +42,16 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controller\" />
-  </ItemGroup>
 <ItemGroup>
   <AdditionalFiles Include=".\stylecop.json" />
+</ItemGroup>
+<ItemGroup>
+  <Folder Include="Services\Category\" />
+  <Folder Include="Services\MediaFile\" />
+  <Folder Include="Services\Ingredient\" />
+  <Folder Include="Services\Instruction\" />
+  <Folder Include="Services\ShoppingList\" />
+  <Folder Include="Services\Recipe\" />
 </ItemGroup>
 
 </Project>

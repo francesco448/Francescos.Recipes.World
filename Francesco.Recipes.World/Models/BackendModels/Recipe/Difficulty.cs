@@ -1,15 +1,22 @@
-﻿namespace Francesco.Recipes.World.Models.BackendModels.Recipe
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Francesco.Recipes.World.Models.BackendModels.Recipe
 {
     public enum Difficulty
     {
-        VeryEasy = 1,
+        [Display(Name = "Sehr einfach")]
+        VeryEasy = 0,
 
-        Easy = 2,
+        [Display(Name = "Einfach")]
+        Easy = 1,
 
-        Medium = 3,
+        [Display(Name = "Mittel")]
+        Medium = 2,
 
-        Hard = 4,
+        [Display(Name = "Schwer")]
+        Hard = 3,
 
-        Expert = 5,
+        [Display(Name = "Experte")]
+        Expert = 4,
     }
 }

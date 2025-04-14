@@ -1,0 +1,68 @@
+﻿@model Francesco.Recipes.World.Models.BackendModels.Recipe.Recipe
+
+@{
+	ViewData["Title"] = "Recipe Details";
+}
+
+<h1>@Model.Name</h1>
+
+<div class="recipe-details">
+	<div class="recipe-image">
+		@if (Model.MediaFiles.Any() && Model.MediaFiles.First().Data != null)
+		{
+			var mediaFile = Model.MediaFiles.First();
+			if (mediaFile.Data != null)
+			{
+				<img src="data:@mediaFile.MimeType;base64,@Convert.ToBase64String(mediaFile.Data)" alt="@Model.Name" class="img-fluid" />
+			}
+		}
+	</div>
+	<div class="recipe-info">
+		<p><strong>Description:</strong> @Model.Description</p>
+		<p><strong>Difficulty:</strong> @Model.Difficulty</p>
+		<p><strong>Servings:</strong> @Model.Servings</p>
+		<p><strong>Preparation Time:</strong> @Model.PreparationTime</p>
+		<p><strong>Cooking Time:</strong> @Model.CookingTime</p>
+	</div>
+	<div class="recipe-ingredients">
+		<h3>Ingredients</h3>
+		<form id="ingredient-form">
+			<ul id="ingredient-list">
+				@foreach (var ingredient in Model.RecipeIngredients)
+				{
+					<li id="ingredient-@ingredient.Id">
+						<input type="checkbox" name="ingredientIds" value="@ingredient.Id" />
+						@ingredient.Ingredient.Name - @ingredient.Quantity @(ingredient.Unit != null ? ingredient.Unit.Symbol : string.Empty)
+					</li>
+				}
+			</ul>
+			<button type="button" class="btn btn-primary" onclick="addSelectedIngredientsToShoppingList()">Add Selected to Shopping List</button>
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		async function addSelectedIngredientsToShoppingList() {
+			var form = document.getElementById('ingredient-form');
+			var formData = new FormData(form);
+			var selectedIngredientIds = formData.getAll('ingredientIds');
+
+			var response = await fetch('/ShoppingList/CreateOrAddIngredients', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ recipeId: '@Model.Id', ingredientIds: selectedIngredientIds })
+			});
+
+			if (response.ok) {
+				var result = await response.json();
+				localStorage.setItem('shoppingListId', result.shoppingListId);
+				alert('Shopping list updated.');
+			} else {
+				alert('Failed to update shopping list.');
+			}
+		}
+	</script>
+}
