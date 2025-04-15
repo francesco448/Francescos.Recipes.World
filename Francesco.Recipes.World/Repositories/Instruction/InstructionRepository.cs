@@ -77,5 +77,44 @@
                 .Where(i => i.Recipe.Id == recipeId)
                 .ToListAsync();
         }
+
+        public async Task<Instruction> GetInstructionWithRecipeAsync(Guid instructionId)
+        {
+            var instruction = await _context.Instructions
+                .Include(i => i.Recipe)
+                .ThenInclude(r => r.Instructions)
+                .FirstOrDefaultAsync(i => i.Id == instructionId);
+
+            if (instruction == null)
+            {
+                throw new InvalidDataException($"Instruction with ID {instructionId} not found.");
+            }
+
+            if (instruction.Recipe == null)
+            {
+                throw new InvalidDataException($"The Recipe for Instruction with ID {instructionId} is not loaded or does not exist.");
+            }
+
+            return instruction;
+        }
+
+        public async Task SwapInstructionOrderAsync(Instruction a, Instruction b)
+        {
+            if (a == null)
+            {
+                throw new ArgumentNullException(nameof(a), "Instruction 'a' cannot be null.");
+            }
+
+            if (b == null)
+            {
+                throw new ArgumentNullException(nameof(b), "Instruction 'b' cannot be null.");
+            }
+
+            var temp = a.Number;
+            a.Number = b.Number;
+            b.Number = temp;
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
