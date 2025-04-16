@@ -5,6 +5,5 @@
         Task MoveInstructionUpAsync(Guid instructionId);
 
         Task MoveInstructionDownAsync(Guid instructionId);
-
     }
 }
