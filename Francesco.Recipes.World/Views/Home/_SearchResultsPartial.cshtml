@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<Francesco.Recipes.World.Models.BackendModels.Recipe.Recipe>
 
-@if (!Model.Any())
+@{
+	if (!Model.Any())
 {
 	<p class="text-muted">Keine Ergebnisse gefunden.</p>
 }
@@ -15,7 +16,7 @@ else
 						@{
 							var mediaFile = recipe.MediaFiles.FirstOrDefault();
 						}
-						@if (mediaFile != null && mediaFile.Data != null)
+						@if (mediaFile?.Data != null)
 						{
 							<img src="data:@mediaFile.MimeType;base64,@Convert.ToBase64String(mediaFile.Data)"
 								 alt="@recipe.Name"
@@ -52,3 +53,5 @@ else
 		}
 	</div>
 }
+}
+

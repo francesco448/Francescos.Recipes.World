@@ -1,4 +1,4 @@
-﻿namespace Francesco.Recipes.World.Controller.Home
+﻿namespace Francesco.Recipes.World.Controller.HomeController
 {
     using Francesco.Recipes.World.Repositories.Category;
     using Francesco.Recipes.World.Repositories.Recipe;
@@ -6,19 +6,26 @@
 
     public class HomeController : Controller
     {
-        private readonly ICategoryRepository _categoryRepository;
         private readonly IRecipeRepository _recipeRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
         public HomeController(ICategoryRepository categoryRepository, IRecipeRepository recipeRepository)
         {
-            _categoryRepository = categoryRepository;
             _recipeRepository = recipeRepository;
+            _categoryRepository = categoryRepository;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var categories = await _categoryRepository.GetAllCategoriesWithRecipesAsync();
+            return View("Index", categories);
         }
 
         [HttpGet("/Home/Search")]
         public async Task<IActionResult> Search(string query)
         {
-            var recipes = await _recipeRepository.GetRecipesBySearchQueryAsync(query);
+            var recipes = await _recipeRepository.SerachRecipeAndIngredientAsync(query);
             return PartialView("_SearchResultsPartial", recipes);
         }
     }
