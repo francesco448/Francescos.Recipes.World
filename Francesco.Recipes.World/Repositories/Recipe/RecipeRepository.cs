@@ -147,30 +147,24 @@
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Recipe>> GetRecipesByNameAndIngredientAsync(string name, string ingredient)
+        public async Task<IEnumerable<Recipe>> GetRecipesBySearchQueryAsync(string query)
         {
-            var query = _context.Recipes
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return await _context.Recipes
+                    .Include(r => r.RecipeIngredients)
+                        .ThenInclude(ri => ri.Ingredient)
+                    .ToListAsync();
+            }
+
+            query = query.ToLower();
+
+            return await _context.Recipes
                 .Include(r => r.RecipeIngredients)
-                .ThenInclude(ri => ri.Ingredient)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                query = query.Where(r => r.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (!string.IsNullOrWhiteSpace(ingredient))
-            {
-                var ingredientMatches = await _ingredientRepository.GetIngredientsByNameAsync(ingredient);
-                var ingredientIds = ingredientMatches.Select(i => i.Id).ToList();
-
-                if (ingredientIds.Any())
-                {
-                    query = query.Where(r => r.RecipeIngredients.Any(ri => ingredientIds.Contains(ri.Ingredient.Id)));
-                }
-            }
-
-            return await query.ToListAsync();
+                    .ThenInclude(ri => ri.Ingredient)
+                .Where(r => r.Name.ToLower().Contains(query) ||
+                            r.RecipeIngredients.Any(ri => ri.Ingredient.Name.ToLower().Contains(query)))
+                .ToListAsync();
         }
 
         public async Task<IReadOnlyCollection<Recipe>> GetRecipesByDifficultyAsync(Difficulty? difficulty)
