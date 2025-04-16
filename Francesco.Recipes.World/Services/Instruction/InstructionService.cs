@@ -11,39 +11,33 @@ namespace Francesco.Recipes.World.Services.Instruction
             _instructionRepository = instructionRepository;
         }
 
-        public async Task MoveInstructionDownAsync(Guid instructionId)
+        public Task MoveInstructionUpAsync(Guid instructionId)
+          => MoveInstructionAsync(instructionId, moveUp: true);
+
+        public Task MoveInstructionDownAsync(Guid instructionId)
+            => MoveInstructionAsync(instructionId, moveUp: false);
+
+        private async Task MoveInstructionAsync(Guid instructionId, bool moveUp)
         {
-            var instruction = await _instructionRepository.GetInstructionWithRecipeAsync(instructionId);
+            var instructions = await _instructionRepository.GetInstructionsByInstructionIdAsync(instructionId);
 
-            var instructions = await _instructionRepository.GetInstructionsByRecipeIdAsync(instruction.Recipe.Id);
+            var instruction = instructions.FirstOrDefault(i => i.Id == instructionId);
 
+            if (instruction == null)
+            {
+                throw new InvalidDataException($"Instruction with ID {instructionId} not found.");
+            }
+
+            var minStep = 1;
             var maxStep = instructions.Max(i => i.Number);
 
-            if (instruction.Number >= maxStep)
+            if ((moveUp && instruction.Number == minStep) || (!moveUp && instruction.Number >= maxStep))
             {
                 return;
             }
 
-            var neighbor = instructions.FirstOrDefault(i => i.Number == instruction.Number + 1);
-
-            if (neighbor != null)
-            {
-                await _instructionRepository.SwapInstructionOrderAsync(instruction, neighbor);
-            }
-        }
-
-        public async Task MoveInstructionUpAsync(Guid instructionId)
-        {
-            var instruction = await _instructionRepository.GetInstructionWithRecipeAsync(instructionId);
-
-            if (instruction.Number == 1)
-            {
-                return;
-            }
-
-            var instructions = await _instructionRepository.GetInstructionsByRecipeIdAsync(instruction.Recipe.Id);
-
-            var neighbor = instructions.FirstOrDefault(i => i.Number == instruction.Number - 1);
+            var targetNumber = moveUp ? instruction.Number - 1 : instruction.Number + 1;
+            var neighbor = instructions.FirstOrDefault(i => i.Number == targetNumber);
 
             if (neighbor != null)
             {
