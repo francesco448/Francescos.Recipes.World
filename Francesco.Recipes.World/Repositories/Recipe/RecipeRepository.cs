@@ -147,24 +147,21 @@
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Recipe>> GetRecipesBySearchQueryAsync(string query)
+        public async Task<IEnumerable<Recipe>> SerachRecipeAndIngredientAsync(string searchTerm)
         {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                return await _context.Recipes
-                    .Include(r => r.RecipeIngredients)
-                        .ThenInclude(ri => ri.Ingredient)
-                    .ToListAsync();
-            }
-
-            query = query.ToLower();
-
-            return await _context.Recipes
+            var queryable = _context.Recipes
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
-                .Where(r => r.Name.ToLower().Contains(query) ||
-                            r.RecipeIngredients.Any(ri => ri.Ingredient.Name.ToLower().Contains(query)))
-                .ToListAsync();
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                queryable = queryable.Where(r => r.Name.ToLower().Contains(searchTerm) ||
+                                                 r.RecipeIngredients.Any(ri => ri.Ingredient.Name.ToLower().Contains(searchTerm)));
+            }
+
+            return await queryable.ToListAsync();
         }
 
         public async Task<IReadOnlyCollection<Recipe>> GetRecipesByDifficultyAsync(Difficulty? difficulty)
