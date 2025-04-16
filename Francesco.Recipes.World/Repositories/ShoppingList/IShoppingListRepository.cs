@@ -17,5 +17,8 @@
         Task DeleteShoppingListAsync(Guid shoppingListId);
 
         Task<Recipe?> GetRecipeByNameAndImageAsync(string recipeName, string imageFileName);
+
+        Task<int> GetShoppingListRecipeCountAsync(Guid shoppingListId);
+
     }
 }

@@ -167,5 +167,12 @@
                 .Include(r => r.MediaFiles.Where(mf => mf.FileName == imageFileName))
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<int> GetShoppingListRecipeCountAsync(Guid shoppingListId)
+        {
+            return await _context.RecipeShoppingLists
+                .Where(rsl => rsl.ShoppingList.Id == shoppingListId)
+                .CountAsync();
+        }
     }
 }
