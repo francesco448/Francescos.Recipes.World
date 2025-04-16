@@ -8,12 +8,10 @@
 
         Task<Instruction> CreateInstructionToRecipeAsync(Guid recipeId, string description, int number);
 
-        Task<List<Instruction>> GetInstructionsByRecipeIdAsync(Guid recipeId);
-
         Task RemoveInstructionFromRecipeAsync(Guid recipeId, Guid instructionId);
 
         Task SwapInstructionOrderAsync(Instruction a, Instruction b);
 
-        Task<Instruction> GetInstructionWithRecipeAsync(Guid instructionId);
+        Task<List<Instruction>> GetInstructionsByInstructionIdAsync(Guid instructionId);
     }
 }

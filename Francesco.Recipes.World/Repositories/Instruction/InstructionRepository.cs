@@ -70,32 +70,19 @@
             }
         }
 
-        public async Task<List<Instruction>> GetInstructionsByRecipeIdAsync(Guid recipeId)
-        {
-            return await _context.Instructions
-                .Include(i => i.Recipe)
-                .Where(i => i.Recipe.Id == recipeId)
-                .ToListAsync();
-        }
-
-        public async Task<Instruction> GetInstructionWithRecipeAsync(Guid instructionId)
+        public async Task<List<Instruction>> GetInstructionsByInstructionIdAsync(Guid instructionId)
         {
             var instruction = await _context.Instructions
                 .Include(i => i.Recipe)
                 .ThenInclude(r => r.Instructions)
                 .FirstOrDefaultAsync(i => i.Id == instructionId);
 
-            if (instruction == null)
+            if (instruction?.Recipe == null)
             {
-                throw new InvalidDataException($"Instruction with ID {instructionId} not found.");
+                throw new InvalidDataException($"Instruction with ID {instructionId} or its Recipe not found.");
             }
 
-            if (instruction.Recipe == null)
-            {
-                throw new InvalidDataException($"The Recipe for Instruction with ID {instructionId} is not loaded or does not exist.");
-            }
-
-            return instruction;
+            return instruction.Recipe.Instructions.ToList();
         }
 
         public async Task SwapInstructionOrderAsync(Instruction a, Instruction b)
