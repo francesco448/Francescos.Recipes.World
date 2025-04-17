@@ -13,10 +13,10 @@
 
         Task RemoveIngredientFromRecipeAsync(Guid recipeId, Guid ingredientId);
 
-        Task<IEnumerable<Recipe>> GetRecipesByNameAndIngredientAsync(string name, string ingredient);
-
         Task<IReadOnlyCollection<Recipe>> GetRecipesByDifficultyAsync(Difficulty? difficulty);
 
         Task<Recipe> CreateRecipeForCategoryAsync(Category category, string name, string description, Difficulty difficulty, int servings, TimeSpan preparationTime, TimeSpan cookingTime);
+
+        Task<IEnumerable<Recipe>> SearchInRecipesAndIngredients(string searchterm);
     }
 }
