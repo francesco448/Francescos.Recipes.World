@@ -19,7 +19,7 @@ namespace Francesco.Recipes.World.Services.Instruction
 
         private async Task MoveInstructionAsync(Guid instructionId, bool moveUp)
         {
-            var instructions = await _instructionRepository.GetInstructionsByInstructionIdAsync(instructionId);
+            var instructions = await _instructionRepository.GetInstructionsOfRecipeAsync(instructionId);
 
             var instruction = instructions.FirstOrDefault(i => i.Id == instructionId);
 
@@ -36,12 +36,12 @@ namespace Francesco.Recipes.World.Services.Instruction
                 return;
             }
 
-            var targetNumber = moveUp ? instruction.Number - 1 : instruction.Number + 1;
+            var targetNumber = moveUp ? instruction.Number + 1 : instruction.Number - 1;
             var neighbor = instructions.FirstOrDefault(i => i.Number == targetNumber);
 
             if (neighbor != null)
             {
-                await _instructionRepository.SwapInstructionOrderAsync(instruction, neighbor);
+                await _instructionRepository.SwapInstructionNumbersAsync(instruction, neighbor);
             }
         }
     }
