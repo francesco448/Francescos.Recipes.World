@@ -147,7 +147,7 @@
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Recipe>> SearchRecipeAsync(string searchTerm)
+        public async Task<IEnumerable<Recipe>> SearchInRecipesandIngredients(string searchTerm)
         {
             var queryable = _context.Recipes
                 .Include(r => r.RecipeIngredients)
