@@ -17,6 +17,6 @@
 
         Task<Recipe> CreateRecipeForCategoryAsync(Category category, string name, string description, Difficulty difficulty, int servings, TimeSpan preparationTime, TimeSpan cookingTime);
 
-        Task<IEnumerable<Recipe>> SearchInRecipesandIngredients(string searchterm);
+        Task<IEnumerable<Recipe>> SearchInRecipesAndIngredients(string searchterm);
     }
 }

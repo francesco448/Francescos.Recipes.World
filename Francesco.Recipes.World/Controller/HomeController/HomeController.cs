@@ -23,9 +23,9 @@
         }
 
         [HttpGet("/Home/Search")]
-        public async Task<IActionResult> Search(string query)
+        public async Task<IActionResult> Search(string term)
         {
-            var recipes = await _recipeRepository.SearchInRecipesandIngredients(query);
+            var recipes = await _recipeRepository.SearchInRecipesAndIngredients(term);
             return PartialView("_SearchResultsPartial", recipes);
         }
     }
