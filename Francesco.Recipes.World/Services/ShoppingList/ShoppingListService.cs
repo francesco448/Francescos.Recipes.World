@@ -14,7 +14,7 @@
             _shoppingListRepository = shoppingListRepository;
         }
 
-        public async Task<int> GetShoppingListRecipeCountAsync(Guid shoppingListId)
+        public async Task<int> CountRecipeLinkedToShoppingListAsync(Guid shoppingListId)
         {
             return await _shoppingListRepository.GetShoppingListRecipeCountAsync(shoppingListId);
         }
