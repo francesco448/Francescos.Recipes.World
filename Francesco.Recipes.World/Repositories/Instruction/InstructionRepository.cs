@@ -70,7 +70,7 @@
             }
         }
 
-        public async Task<List<Instruction>> GetInstructionsByInstructionIdAsync(Guid instructionId)
+        public async Task<List<Instruction>> GetInstructionsOfRecipeAsync(Guid instructionId)
         {
             var instruction = await _context.Instructions
                 .Include(i => i.Recipe)
@@ -85,7 +85,7 @@
             return instruction.Recipe.Instructions.ToList();
         }
 
-        public async Task SwapInstructionOrderAsync(Instruction a, Instruction b)
+        public async Task SwapInstructionNumbersAsync(Instruction a, Instruction b)
         {
             if (a == null)
             {
