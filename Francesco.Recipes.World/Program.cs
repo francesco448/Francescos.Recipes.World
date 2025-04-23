@@ -7,6 +7,7 @@ using Francesco.Recipes.World.Repositories.MediaFile;
 using Francesco.Recipes.World.Repositories.Recipe;
 using Francesco.Recipes.World.Repositories.ShoppingList;
 using Francesco.Recipes.World.Repositories.Unit;
+using Francesco.Recipes.World.Services.Instruction;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +40,8 @@ builder.Services.AddScoped<IMediaFileRepository, MediaFileRepository>();
 builder.Services.AddScoped<IInstructionRepository, InstructionRepository>();
 
 builder.Services.AddScoped<IFavoriteRepository, FavoritRepository>();
+
+builder.Services.AddScoped<IInstructionService, InstructionService>();
 
 var app = builder.Build();
 
