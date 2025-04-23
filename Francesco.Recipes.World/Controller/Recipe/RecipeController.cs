@@ -13,7 +13,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
 
-    [Route("Recipe")]
 
     public class RecipeController : Controller
     {
