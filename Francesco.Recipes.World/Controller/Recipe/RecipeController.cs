@@ -13,7 +13,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
 
-
     public class RecipeController : Controller
     {
         private readonly IRecipeRepository _recipeRepository;

@@ -12,6 +12,6 @@
 
         Task SwapInstructionNumbersAsync(Instruction a, Instruction b);
 
-        Task<List<Instruction>> GetInstructionsOfRecipeAsync(Guid instructionId);
+        Task<List<Instruction>> GetInstructionsOfRecipeAsync(Guid recipeId);
     }
 }

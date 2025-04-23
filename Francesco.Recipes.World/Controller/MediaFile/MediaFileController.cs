@@ -1,6 +1,6 @@
 ﻿namespace Francesco.Recipes.World.Controller.MediaFile
 {
-    using Francesco.Recipes.World.Data;
+
     using Francesco.Recipes.World.Repositories.MediaFile;
     using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +9,7 @@
     {
         private readonly IMediaFileRepository _mediaFileRepository;
 
-        public MediaFileController(IMediaFileRepository mediaFileRepository, FrancescosRecipesWorldDbContext context)
+        public MediaFileController(IMediaFileRepository mediaFileRepository)
         {
             _mediaFileRepository = mediaFileRepository;
         }
