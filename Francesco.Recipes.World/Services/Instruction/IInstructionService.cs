@@ -2,8 +2,8 @@
 {
     public interface IInstructionService
     {
-        Task MoveInstructionUpAsync(Guid instructionId);
+        Task MoveInstructionUpAsync(Guid recipeId, Guid instructionId);
 
-        Task MoveInstructionDownAsync(Guid instructionId);
+        Task MoveInstructionDownAsync(Guid recipeId, Guid instructionId);
     }
 }
