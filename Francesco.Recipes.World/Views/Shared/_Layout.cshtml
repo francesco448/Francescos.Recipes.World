@@ -73,6 +73,15 @@
 			document.body.classList.remove('bg-dark', 'text-white');
 		});
 	</script>
+	<script>
+		document.body.addEventListener('htmx:configRequest', (event) => {
+			const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+			if (token) {
+				event.detail.headers['RequestVerificationToken'] = token;
+			}
+		});
+	</script>
+
 	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

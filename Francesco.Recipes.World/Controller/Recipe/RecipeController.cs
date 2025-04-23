@@ -13,6 +13,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
 
+
     public class RecipeController : Controller
     {
         private readonly IRecipeRepository _recipeRepository;
@@ -248,7 +249,13 @@
         public async Task<IActionResult> AddFavorite(Guid recipeId)
         {
             await _favoriteRepository.AddFavoriteAsync(recipeId);
-            return RedirectToAction("Details", new { recipeId });
+            var recipe = await _recipeRepository.GetRecipeByIdAsync(recipeId);
+            if (recipe == null)
+            {
+                return NotFound("Recipe not found.");
+            }
+
+            return PartialView("_FavoriteButton", recipe);
         }
 
         // POST: /Recipe/RemoveFavorite
@@ -257,7 +264,13 @@
         public async Task<IActionResult> RemoveFavorite(Guid recipeId)
         {
             await _favoriteRepository.RemoveFavoriteAsync(recipeId);
-            return RedirectToAction("Details", new { recipeId });
+            var recipe = await _recipeRepository.GetRecipeByIdAsync(recipeId);
+            if (recipe == null)
+            {
+                return NotFound("Recipe not found.");
+            }
+
+            return PartialView("_FavoriteButton", recipe);
         }
     }
 }

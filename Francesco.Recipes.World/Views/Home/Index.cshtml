@@ -1,6 +1,86 @@
-﻿<form hx-get="/Home/Search" hx-target="#search-results" hx-trigger="keyup changed delay:300ms" onsubmit="return false;" class="mb-4">
+﻿@model IEnumerable<Francesco.Recipes.World.Views.Category.CategoryRecipesViewModel>
+@Html.AntiForgeryToken()
+
+<div class="welcome-banner text-center mb-4">
+	<img src="/images/banner2.jpg" alt="Willkommen" class="img-fluid" />
+	<h1 class="mt-3">Willkommen in der Rezept-App</h1>
+</div>
+
+
+<form hx-get="/Home/Search"
+	  hx-target="#search-results"
+	  hx-trigger="keyup changed delay:300ms"
+	  onsubmit="return false;"
+	  class="mb-4">
 	<input type="text" name="query" class="form-control" placeholder="Suchen nach Rezepten oder Zutaten..." autocomplete="off" />
 </form>
 
+
 <div id="search-results" class="mt-4"></div>
+
+
+@foreach (var category in Model)
+{
+	<div class="category-section mb-5" id="category-@category.Category.Id">
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h2>@category.Category.Name</h2>
+			<a href="/Category/Details/@category.Category.Id"
+			   class="btn btn-link"
+			   hx-get="/Category/Details/@category.Category.Id"
+			   hx-target="#category-@category.Category.Id"
+			   hx-swap="outerHTML">Alle @category.Category.Name-Rezepte anzeigen</a>
+		</div>
+
+		<div class="row">
+			@foreach (var recipe in category.Recipes)
+			{
+				var mediaFile = recipe.MediaFiles?.FirstOrDefault();
+				var imageData = mediaFile?.Data;
+				var mimeType = mediaFile?.MimeType;
+
+				<div class="col-md-3 mb-4">
+					<a href="/Recipe/Details/@recipe.Id" class="text-decoration-none">
+						<div class="card h-100">
+							<div class="recipe-image">
+								@if (imageData != null && mimeType != null)
+								{
+									<img src="data:@mimeType;base64,@Convert.ToBase64String(imageData)" alt="@recipe.Name" class="card-img-top" />
+								}
+								else
+								{
+									<img src="/images/placeholder.png" alt="@recipe.Name" class="card-img-top" />
+								}
+							</div>
+
+							<div class="card-body d-flex flex-column">
+								<h5 class="card-title">@recipe.Name</h5>
+								<p class="card-text text-muted mb-2">@recipe.CookingTime</p>
+
+								<div id="favorite-button-@recipe.Id">
+									@await Html.PartialAsync("_FavoriteButton", recipe)
+								</div>
+
+								<a href="/Recipe/Details/@recipe.Id"
+								   class="btn btn-primary mt-auto">Details</a>
+							</div>
+						</div>
+					</a>
+				</div>
+			}
+
+			<div class="col-md-3 mb-4">
+				<div class="card h-100 text-center">
+					<div class="card-body d-flex flex-column justify-content-center">
+						<a href="/Recipe/Create?categoryId=@category.Category.Id"
+						   class="btn btn-outline-primary"
+						   hx-get="/Recipe/Create?categoryId=@category.Category.Id"
+						   hx-target="#category-@category.Category.Id"
+						   hx-swap="beforeend">Rezept hinzufügen</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
 
