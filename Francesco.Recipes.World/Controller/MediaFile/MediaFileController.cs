@@ -8,12 +8,10 @@
     public class MediaFileController : Controller
     {
         private readonly IMediaFileRepository _mediaFileRepository;
-        private readonly FrancescosRecipesWorldDbContext _context;
 
         public MediaFileController(IMediaFileRepository mediaFileRepository, FrancescosRecipesWorldDbContext context)
         {
             _mediaFileRepository = mediaFileRepository;
-            _context = context;
         }
 
         // POST: /UploadImage
