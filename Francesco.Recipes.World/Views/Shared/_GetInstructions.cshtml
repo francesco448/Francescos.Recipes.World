@@ -1,22 +1,24 @@
-﻿@Html.AntiForgeryToken()
+﻿@model Francesco.Recipes.World.Models.InstructionViewModel
+@Html.AntiForgeryToken()
 <div id="instructions-container">
-	@for (int i = 0; i < Model.Count; i++)
+	@for (int i = 0; i < Model.Instructions.Count; i++)
 	{
-		<div class="instruction-item" id="instruction-@Model[i].Id">
+		<div class="instruction-item" id="instruction-@Model.Instructions[i].Id">
 			<div class="instruction-controls">
 				<input type="file" />
-				<textarea placeholder="Beschreibung" class="form-control">@Model[i].Description</textarea>
-				<button type="button" class="btn-delete" onclick="removeInstruction('@Model[i].Id')">🗑️</button>
+				<textarea placeholder="Beschreibung" class="form-control">@Model.Instructions[i].Description</textarea>
+				<button type="button" class="btn-delete" onclick="removeInstruction('@Model.Instructions[i].Id')">🗑️</button>
 			</div>
 			<div class="instruction-actions">
-				<button type="button" class="btn-move-up" onclick="moveInstructionUp('@Model[i].Id')">⬆️</button>
-				<button type="button" class="btn-move-down" onclick="moveInstructionDown('@Model[i].Id')">⬇️</button>
+				<button type="button" class="btn-move-up" onclick="moveInstructionUp('@Model.Instructions[i].Id')">⬆️</button>
+				<button type="button" class="btn-move-down" onclick="moveInstructionDown('@Model.Instructions[i].Id')">⬇️</button>
 			</div>
 		</div>
 	}
 </div>
 
 <button type="button" class="btn-add" onclick="addInstruction()">Schritte hinzufügen</button>
+
 
 @section Scripts {
 	<script>
