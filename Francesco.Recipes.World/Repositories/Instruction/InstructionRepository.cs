@@ -22,25 +22,30 @@
             return instruction ?? throw new InvalidDataException($"Instruction {instructionId} not found.");
         }
 
-        public async Task<Instruction> CreateInstructionToRecipeAsync(Guid recipeId, string description, int number)
+        public async Task<Instruction> CreateInstructionToRecipeAsync(Guid recipeId, string description)
         {
-            var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
-
             if (string.IsNullOrWhiteSpace(description))
             {
                 throw new ArgumentException("Description cannot be empty", nameof(description));
             }
 
-            if (number <= 0)
+            var recipe = await _context.Recipes
+                .Include(r => r.Instructions)
+                .FirstOrDefaultAsync(r => r.Id == recipeId);
+
+            if (recipe == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(number), "Number must be greater than 0.");
+                throw new ArgumentException("Recipe not found.", nameof(recipeId));
             }
+
+            var nextNumber = recipe.Instructions?.Max(i => i.Number) ?? 0;
+            nextNumber++;
 
             var newInstruction = new Instruction
             {
                 Id = Guid.NewGuid(),
                 Description = description,
-                Number = number,
+                Number = nextNumber,
                 Recipe = recipe,
             };
 
@@ -65,8 +70,18 @@
 
             if (instructionToRemove != null)
             {
+                await _context.Entry(instructionToRemove)
+                    .Collection(i => i.MediaFiles)
+                    .LoadAsync();
+
+                if (instructionToRemove.MediaFiles != null && instructionToRemove.MediaFiles.Any())
+                {
+                    _context.MediaFiles.RemoveRange(instructionToRemove.MediaFiles);
+                }
+
                 recipe.Instructions?.Remove(instructionToRemove);
                 await _context.SaveChangesAsync();
+                await RenumberInstructionsAsync(recipeId);
             }
         }
 
@@ -83,6 +98,21 @@
             }
 
             return instructions;
+        }
+
+        public async Task RenumberInstructionsAsync(Guid recipeId)
+        {
+            var instructions = await _context.Instructions
+                .Where(i => i.Recipe.Id == recipeId)
+                .OrderBy(i => i.Number)
+                .ToListAsync();
+
+            for (var i = 0; i < instructions.Count; i++)
+            {
+                instructions[i].Number = i + 1;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task SwapInstructionNumbersAsync(Instruction a, Instruction b)
