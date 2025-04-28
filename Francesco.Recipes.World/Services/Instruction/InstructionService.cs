@@ -1,7 +1,8 @@
-﻿using Francesco.Recipes.World.Repositories.Instruction;
-
-namespace Francesco.Recipes.World.Services.Instruction
+﻿namespace Francesco.Recipes.World.Services.Instruction
 {
+    using Francesco.Recipes.World.Models.BackendModels.Instruction;
+    using Francesco.Recipes.World.Repositories.Instruction;
+
     public class InstructionService : IInstructionService
     {
         private readonly IInstructionRepository _instructionRepository;
@@ -16,6 +17,12 @@ namespace Francesco.Recipes.World.Services.Instruction
 
         public Task MoveInstructionDownAsync(Guid recipeId, Guid instructionId)
             => MoveInstructionAsync(recipeId, instructionId, moveUp: false);
+
+        public async Task<List<Instruction>> GetSortedInstructionsAsync(Guid recipeId)
+        {
+            var instructions = await _instructionRepository.GetInstructionsOfRecipeAsync(recipeId);
+            return instructions.OrderBy(i => i.Number).ToList();
+        }
 
         private async Task MoveInstructionAsync(Guid recipeId, Guid instructionId, bool moveUp)
         {
