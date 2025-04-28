@@ -6,7 +6,7 @@
 			<div class="instruction-controls">
 				<input type="file" />
 				<textarea placeholder="Beschreibung" class="form-control">@Model[i].Description</textarea>
-				<button type="button" class="btn-delete">🗑️</button>
+				<button type="button" class="btn-delete" onclick="removeInstruction('@Model[i].Id')">🗑️</button>
 			</div>
 			<div class="instruction-actions">
 				<button type="button" class="btn-move-up" onclick="moveInstructionUp('@Model[i].Id')">⬆️</button>
@@ -67,6 +67,32 @@
 				console.error('Error moving instruction down:', error);
 			}
 		}
+
+		async function removeInstruction(instructionId) {
+			if (!confirm('Möchtest du diesen Schritt wirklich löschen?')) return;
+
+			try {
+				const response = await fetch(`/${recipeId}/RemoveInstruction/${instructionId}`, {
+					method: 'POST',
+					headers: {
+						'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+					}
+				});
+
+				if (response.ok) {
+					const element = document.getElementById(`instruction-${instructionId}`);
+					if (element) {
+						element.remove();
+					}
+				} else {
+					const error = await response.json();
+					alert(error.Error || 'Fehler beim Löschen der Anweisung.');
+				}
+			} catch (error) {
+				console.error('Fehler beim Löschen:', error);
+			}
+		}
+
 
 		function addInstruction() {
 			const container = document.getElementById('instructions-container');
