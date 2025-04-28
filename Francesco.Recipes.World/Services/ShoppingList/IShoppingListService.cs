@@ -2,6 +2,6 @@
 {
     public interface IShoppingListService
     {
-        Task<int> GetShoppingListRecipeCountAsync(Guid shoppingListId);
+        Task<int> GetShoppingListRecipesCountAsync(Guid shoppingListId);
     }
 }
