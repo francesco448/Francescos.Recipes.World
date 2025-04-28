@@ -43,6 +43,9 @@
                 return;
             }
 
+            // Instructions are ordered by ascending numbers (1, 2, 3, ...).
+            // Moving up means swapping with the instruction that has one number less (Number - 1).
+            // Moving down means swapping with the instruction that has one number more (Number + 1).
             var targetNumber = moveUp ? instruction.Number - 1 : instruction.Number + 1;
             var neighbor = instructions.FirstOrDefault(i => i.Number == targetNumber);
 
