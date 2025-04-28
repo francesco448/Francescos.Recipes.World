@@ -1,5 +1,6 @@
 ﻿namespace Francesco.Recipes.World.Controller.Instruction
 {
+    using Francesco.Recipes.World.Models;
     using Francesco.Recipes.World.Repositories.Instruction;
     using Francesco.Recipes.World.Services.Instruction;
     using Microsoft.AspNetCore.Mvc;
@@ -50,11 +51,14 @@
         {
             try
             {
-                var instructions = await _instructionRepository.GetInstructionsOfRecipeAsync(recipeId);
-                var sortedInstructions = instructions.OrderBy(i => i.Number).ToList();
-                ViewData["RecipeId"] = recipeId;
+                var sortedInstructions = await _instructionService.GetSortedInstructionsAsync(recipeId);
+                var viewModel = new InstructionViewModel
+                {
+                    RecipeId = recipeId,
+                    Instructions = sortedInstructions,
+                };
 
-                return View("~/Views/Shared/_GetInstructions.cshtml", sortedInstructions);
+                return View("~/Views/Shared/_GetInstructions.cshtml", viewModel);
             }
             catch (Exception ex)
             {
