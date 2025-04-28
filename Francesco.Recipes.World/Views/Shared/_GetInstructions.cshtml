@@ -1,0 +1,118 @@
+﻿@model Francesco.Recipes.World.Models.InstructionViewModel
+@Html.AntiForgeryToken()
+<div id="instructions-container">
+	@for (int i = 0; i < Model.Instructions.Count; i++)
+	{
+		<div class="instruction-item" id="instruction-@Model.Instructions[i].Id">
+			<div class="instruction-controls">
+				<input type="file" />
+				<textarea placeholder="Beschreibung" class="form-control">@Model.Instructions[i].Description</textarea>
+				<button type="button" class="btn-delete" onclick="removeInstruction('@Model.Instructions[i].Id')">🗑️</button>
+			</div>
+			<div class="instruction-actions">
+				<button type="button" class="btn-move-up" onclick="moveInstructionUp('@Model.Instructions[i].Id')">⬆️</button>
+				<button type="button" class="btn-move-down" onclick="moveInstructionDown('@Model.Instructions[i].Id')">⬇️</button>
+			</div>
+		</div>
+	}
+</div>
+
+<button type="button" class="btn-add" onclick="addInstruction()">Schritte hinzufügen</button>
+
+
+@section Scripts {
+	<script>
+		htmx.on('htmx:afterSwap', (event) => {
+			if (event.target.id === 'instructions-container') {
+				console.log('Instructions reloaded.');
+			}
+		});
+
+		const recipeId = '@Model.RecipeId';
+	
+
+		async function moveInstructionUp(instructionId) {
+			try {
+				const response = await fetch(`/Recipe/${recipeId}/Instruction/${instructionId}/move-up`, {
+					method: 'POST',
+					headers: {
+						'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+					}
+				});
+
+				if (response.ok) {
+					htmx.ajax('GET', `/Recipe/${recipeId}/Instructions`, '#instructions-container');
+				} else {
+					const error = await response.json();
+					alert(error.Error || 'Failed to move instruction up.');
+				}
+			} catch (error) {
+				console.error('Error moving instruction up:', error);
+			}
+		}
+
+		async function moveInstructionDown(instructionId) {
+			try {
+				const response = await fetch(`/Recipe/${recipeId}/Instruction/${instructionId}/move-down`, {
+					method: 'POST',
+					headers: {
+						'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+					}
+				});
+
+				if (response.ok) {
+					htmx.ajax('GET', `/Recipe/${recipeId}/Instructions`, '#instructions-container');
+				} else {
+					const error = await response.json();
+					alert(error.Error || 'Failed to move instruction down.');
+				}
+			} catch (error) {
+				console.error('Error moving instruction down:', error);
+			}
+		}
+
+		async function removeInstruction(instructionId) {
+			if (!confirm('Möchtest du diesen Schritt wirklich löschen?')) return;
+
+			try {
+				const response = await fetch(`/${recipeId}/RemoveInstruction/${instructionId}`, {
+					method: 'POST',
+					headers: {
+						'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+					}
+				});
+
+				if (response.ok) {
+					const element = document.getElementById(`instruction-${instructionId}`);
+					if (element) {
+						element.remove();
+					}
+				} else {
+					const error = await response.json();
+					alert(error.Error || 'Fehler beim Löschen der Anweisung.');
+				}
+			} catch (error) {
+				console.error('Fehler beim Löschen:', error);
+			}
+		}
+
+
+		function addInstruction() {
+			const container = document.getElementById('instructions-container');
+			const newInstructionHtml = `
+				<div class="instruction-item">
+					<div class="instruction-controls">
+						<input type="file" />
+						<textarea placeholder="Beschreibung" class="form-control"></textarea>
+						<button type="button" class="btn-delete" onclick="deleteInstruction()">🗑️</button>
+					</div>
+					<div class="instruction-actions">
+						<button type="button" class="btn-move-up" onclick="moveInstructionUp()">⬆️</button>
+						<button type="button" class="btn-move-down" onclick="moveInstructionDown()">⬇️</button>
+					</div>
+				</div>
+			`;
+			container.insertAdjacentHTML('beforeend', newInstructionHtml);
+		}
+	</script>
+}

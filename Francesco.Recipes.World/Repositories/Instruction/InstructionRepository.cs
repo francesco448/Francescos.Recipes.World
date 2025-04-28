@@ -22,25 +22,30 @@
             return instruction ?? throw new InvalidDataException($"Instruction {instructionId} not found.");
         }
 
-        public async Task<Instruction> CreateInstructionToRecipeAsync(Guid recipeId, string description, int number)
+        public async Task<Instruction> CreateInstructionToRecipeAsync(Guid recipeId, string description)
         {
-            var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
-
             if (string.IsNullOrWhiteSpace(description))
             {
                 throw new ArgumentException("Description cannot be empty", nameof(description));
             }
 
-            if (number <= 0)
+            var recipe = await _context.Recipes
+                .Include(r => r.Instructions)
+                .FirstOrDefaultAsync(r => r.Id == recipeId);
+
+            if (recipe == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(number), "Number must be greater than 0.");
+                throw new ArgumentException("Recipe not found.", nameof(recipeId));
             }
+
+            var nextNumber = recipe.Instructions?.Max(i => i.Number) ?? 0;
+            nextNumber++;
 
             var newInstruction = new Instruction
             {
                 Id = Guid.NewGuid(),
                 Description = description,
-                Number = number,
+                Number = nextNumber,
                 Recipe = recipe,
             };
 
@@ -65,17 +70,68 @@
 
             if (instructionToRemove != null)
             {
+                await _context.Entry(instructionToRemove)
+                    .Collection(i => i.MediaFiles)
+                    .LoadAsync();
+
+                if (instructionToRemove.MediaFiles != null && instructionToRemove.MediaFiles.Any())
+                {
+                    _context.MediaFiles.RemoveRange(instructionToRemove.MediaFiles);
+                }
+
                 recipe.Instructions?.Remove(instructionToRemove);
                 await _context.SaveChangesAsync();
+                await RenumberInstructionsAsync(recipeId);
             }
         }
 
-        public async Task<List<Instruction>> GetInstructionsByRecipeIdAsync(Guid recipeId)
+        public async Task<List<Instruction>> GetInstructionsOfRecipeAsync(Guid recipeId)
         {
-            return await _context.Instructions
-                .Include(i => i.Recipe)
+            var instructions = await _context.Instructions
                 .Where(i => i.Recipe.Id == recipeId)
+                .OrderBy(i => i.Number)
                 .ToListAsync();
+
+            if (!instructions.Any())
+            {
+                throw new InvalidDataException($"No instructions found for Recipe ID {recipeId}.");
+            }
+
+            return instructions;
+        }
+
+        public async Task RenumberInstructionsAsync(Guid recipeId)
+        {
+            var instructions = await _context.Instructions
+                .Where(i => i.Recipe.Id == recipeId)
+                .OrderBy(i => i.Number)
+                .ToListAsync();
+
+            for (var i = 0; i < instructions.Count; i++)
+            {
+                instructions[i].Number = i + 1;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SwapInstructionNumbersAsync(Instruction a, Instruction b)
+        {
+            if (a == null)
+            {
+                throw new ArgumentNullException(nameof(a), "Instruction 'a' cannot be null.");
+            }
+
+            if (b == null)
+            {
+                throw new ArgumentNullException(nameof(b), "Instruction 'b' cannot be null.");
+            }
+
+            var temp = a.Number;
+            a.Number = b.Number;
+            b.Number = temp;
+
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -24,36 +24,38 @@
 			<label for="description">Description</label>
 			<input type="text" class="form-control" id="description" name="description" required />
 		</div>
-		<div class="form-group">
-			<label for="number">Number</label>
-			<input type="number" class="form-control" id="number" name="number" required min="1" />
-		</div>
-		<button type="submit" class="btn btn-primary" onclick="addInstructionToRecipe()">Add Instruction</button>
+		<button type="button" class="btn btn-primary" onclick="addInstructionToRecipe()">Add Instruction</button>
 	</form>
+
 </div>
 
 @section Scripts {
 	<script>
-		async function addInstructionToRecipe() {
-			var form = document.getElementById('instruction-form');
-			var recipeId = form.querySelector('input[name="recipeId"]').value;
-			var description = form.querySelector('input[name="description"]').value;
-			var number = form.querySelector('input[name="number"]').value;
+	async function addInstructionToRecipe() {
+    event.preventDefault();
 
-			var response = await fetch('/Recipe/' + recipeId + '/AddInstruction', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ recipeId: recipeId, description: description, number: number })
-			});
+    var form = document.getElementById('instruction-form');
+    var recipeId = form.querySelector('input[name="recipeId"]').value;
+    var description = form.querySelector('input[name="description"]').value;
+    var token = form.querySelector('input[name="__RequestVerificationToken"]').value;
 
-			if (response.ok) {
-				location.reload();
-			} else {
-				alert('Failed to add instruction.');
-			}
-		}
+			var response = await fetch('/' + recipeId + '/AddInstruction', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': token
+        },
+        body: `recipeId=${encodeURIComponent(recipeId)}&description=${encodeURIComponent(description)}`
+    });
+
+    if (response.ok) {
+        location.reload();
+    } else {
+        alert('Failed to add instruction.');
+    }
+}
+
 	</script>
+
 }
 

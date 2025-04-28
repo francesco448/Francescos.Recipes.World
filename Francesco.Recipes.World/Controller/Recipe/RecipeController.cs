@@ -13,7 +13,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
 
-
     public class RecipeController : Controller
     {
         private readonly IRecipeRepository _recipeRepository;
@@ -189,6 +188,47 @@
             return RedirectToAction("Details", new { id = recipeId });
         }
 
+        // GET: /Recipe/{recipeId}/RemoveInstruction/{instructionId}
+        [HttpGet("{recipeId}/RemoveInstruction/{instructionId}")]
+        public async Task<IActionResult> RemoveInstruction(Guid recipeId, Guid instructionId)
+        {
+            var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
+
+            if (recipe == null)
+            {
+                return NotFound("Recipe not found.");
+            }
+
+            var instruction = recipe.Instructions?.FirstOrDefault(i => i.Id == instructionId);
+            if (instruction == null)
+            {
+                return NotFound("Instruction not found in the specified recipe.");
+            }
+
+            ViewBag.RecipeId = recipeId;
+            ViewBag.InstructionId = instructionId;
+
+            return View();
+        }
+
+        // POST: /Recipe/{recipeId}/RemoveInstruction/{instructionId}
+        [HttpPost("{recipeId}/RemoveInstruction/{instructionId}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveInstructionConfirmed(Guid recipeId, Guid instructionId)
+        {
+            try
+            {
+                await _instructionRepository.RemoveInstructionFromRecipeAsync(recipeId, instructionId);
+                TempData["SuccessMessage"] = "Instruction removed successfully.";
+                return RedirectToAction("Details", new { recipeId });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"An error occurred while removing the instruction: {ex.Message}";
+                return RedirectToAction("Details", new { recipeId });
+            }
+        }
+
         // GET: /Recipe/FilterByDifficulty
         [HttpGet("FilterByDifficulty")]
         public async Task<IActionResult> FilterByDifficulty(Difficulty? selectedDifficulty)
@@ -219,11 +259,11 @@
         // POST: /Recipe/{recipeId}/AddInstruction
         [HttpPost("{recipeId}/AddInstruction")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddInstruction(Guid recipeId, string description, int number)
+        public async Task<IActionResult> AddInstruction(Guid recipeId, string description)
         {
             try
             {
-                await _instructionRepository.CreateInstructionToRecipeAsync(recipeId, description, number);
+                await _instructionRepository.CreateInstructionToRecipeAsync(recipeId, description);
                 return RedirectToAction("AddInstruction", new { recipeId });
             }
             catch (Exception ex)

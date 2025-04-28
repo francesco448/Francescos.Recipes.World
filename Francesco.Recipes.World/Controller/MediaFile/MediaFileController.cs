@@ -1,6 +1,5 @@
 ﻿namespace Francesco.Recipes.World.Controller.MediaFile
 {
-    using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Repositories.MediaFile;
     using Microsoft.AspNetCore.Mvc;
 
@@ -8,12 +7,10 @@
     public class MediaFileController : Controller
     {
         private readonly IMediaFileRepository _mediaFileRepository;
-        private readonly FrancescosRecipesWorldDbContext _context;
 
-        public MediaFileController(IMediaFileRepository mediaFileRepository, FrancescosRecipesWorldDbContext context)
+        public MediaFileController(IMediaFileRepository mediaFileRepository)
         {
             _mediaFileRepository = mediaFileRepository;
-            _context = context;
         }
 
         // POST: /UploadImage
