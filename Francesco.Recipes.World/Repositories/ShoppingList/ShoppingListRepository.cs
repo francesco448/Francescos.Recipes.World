@@ -168,7 +168,7 @@
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> GetShoppingListRecipeCountAsync()
+        public async Task<int> CountAllRecipeShoppinglistsAsync()
         {
             return await _context.RecipeShoppingLists
                 .CountAsync();

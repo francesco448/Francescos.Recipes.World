@@ -18,7 +18,6 @@
 
         Task<Recipe?> GetRecipeByNameAndImageAsync(string recipeName, string imageFileName);
 
-        Task<int> GetShoppingListRecipeCountAsync();
-
+        Task<int> CountAllRecipeShoppinglistsAsync();
     }
 }
