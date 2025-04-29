@@ -168,10 +168,9 @@
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<int> GetShoppingListRecipeCountAsync(Guid shoppingListId)
+        public async Task<int> GetShoppingListRecipeCountAsync()
         {
             return await _context.RecipeShoppingLists
-                .Where(rsl => rsl.ShoppingList.Id == shoppingListId)
                 .CountAsync();
         }
     }
