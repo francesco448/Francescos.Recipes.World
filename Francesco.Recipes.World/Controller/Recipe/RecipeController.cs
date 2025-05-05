@@ -230,14 +230,23 @@
 
             if (model.InstructionViewModel?.Instructions != null)
             {
-                foreach (var instruction in model.InstructionViewModel.Instructions)
+                for (var i = 0; i < model.InstructionViewModel.Instructions.Count; i++)
                 {
+                    var instruction = model.InstructionViewModel.Instructions[i];
                     if (!string.IsNullOrWhiteSpace(instruction.Description))
                     {
+                        var fileKey = $"InstructionViewModel.Instructions[{i}].MediaFile";
+                        IFormFile? imageFile = null;
+
+                        if (Request.Form.Files.Any(f => f.Name == fileKey))
+                        {
+                            imageFile = Request.Form.Files[fileKey];
+                        }
+
                         await _instructionRepository.CreateInstructionWithImageToRecipeAsync(
                             recipe.Id,
                             instruction.Description,
-                            null);
+                            imageFile);
                     }
                 }
             }
