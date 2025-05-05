@@ -72,6 +72,11 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadInstructionImage(Guid recipeId, Guid instructionId, IFormFile? photo)
         {
+            if (recipeId == Guid.Empty)
+            {
+                return BadRequest("Recipe ID is required.");
+            }
+
             if (photo == null)
             {
                 return BadRequest("Photo is required.");
