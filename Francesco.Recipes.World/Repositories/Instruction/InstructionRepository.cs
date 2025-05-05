@@ -2,6 +2,7 @@
 {
     using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Models.BackendModels.Instruction;
+    using Francesco.Recipes.World.Models.BackendModels.MediaFile;
     using Francesco.Recipes.World.Repositories.Recipe;
     using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +23,7 @@
             return instruction ?? throw new InvalidDataException($"Instruction {instructionId} not found.");
         }
 
-        public async Task<Instruction> CreateInstructionToRecipeAsync(Guid recipeId, string description)
+        public async Task<Instruction> CreateInstructionWithImageToRecipeAsync(Guid recipeId, string description, IFormFile? photo)
         {
             if (string.IsNullOrWhiteSpace(description))
             {
@@ -38,8 +39,11 @@
                 throw new ArgumentException("Recipe not found.", nameof(recipeId));
             }
 
-            var nextNumber = recipe.Instructions?.Max(i => i.Number) ?? 0;
-            nextNumber++;
+            var nextNumber = 1;
+            if (recipe.Instructions != null && recipe.Instructions.Any())
+            {
+                nextNumber = recipe.Instructions.Max(i => i.Number) + 1;
+            }
 
             var newInstruction = new Instruction
             {
@@ -51,6 +55,24 @@
 
             _context.Instructions.Add(newInstruction);
             await _context.SaveChangesAsync();
+
+            if (photo != null && photo.Length > 0)
+            {
+                using var memoryStream = new MemoryStream();
+                await photo.CopyToAsync(memoryStream);
+
+                var instructionImage = new MediaFile
+                {
+                    FileName = photo.FileName,
+                    MimeType = photo.ContentType,
+                    Data = memoryStream.ToArray(),
+                    Instruction = newInstruction,
+                    Recipe = null,
+                };
+
+                _context.Add(instructionImage);
+                await _context.SaveChangesAsync();
+            }
 
             return newInstruction;
         }
@@ -88,6 +110,7 @@
         public async Task<List<Instruction>> GetInstructionsOfRecipeAsync(Guid recipeId)
         {
             var instructions = await _context.Instructions
+                .Include(i => i.MediaFiles)
                 .Where(i => i.Recipe.Id == recipeId)
                 .OrderBy(i => i.Number)
                 .ToListAsync();
