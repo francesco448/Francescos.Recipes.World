@@ -103,7 +103,7 @@ async function removeInstruction(instructionId, recipeIdParam) {
 
 function addInstruction() {
     const container = document.getElementById('instructions-container');
-    const index = document.querySelectorAll('.instruction-item').length;  // Index for model binding
+    const index = document.querySelectorAll('.instruction-item').length; 
 
     const newInstructionHtml = `
         <div class="instruction-item" id="instruction-new-${index}">
@@ -150,7 +150,7 @@ async function removeIngredient(ingredientId) {
 
 async function addIngredient() {
     const container = document.getElementById('ingredients-container');
-    const index = document.querySelectorAll('.ingredient-item').length;  // Index for model binding
+    const index = document.querySelectorAll('.ingredient-item').length; 
 
     const newIngredientHtml = `
         <div class="ingredient-item" id="ingredient-new-${index}">
