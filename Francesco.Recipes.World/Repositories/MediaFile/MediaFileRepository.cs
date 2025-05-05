@@ -64,6 +64,7 @@
                     MimeType = photo.ContentType,
                     Data = memoryStream.ToArray(),
                     Instruction = instruction,
+                    Recipe = null,
                 };
 
                 _context.Add(instructionImage);
@@ -107,6 +108,7 @@
                 MimeType = mediaFile.ContentType,
                 Data = memoryStream.ToArray(),
                 Recipe = recipe,
+                Instruction = null,
             };
 
             _context.MediaFiles.Add(newMedia);
