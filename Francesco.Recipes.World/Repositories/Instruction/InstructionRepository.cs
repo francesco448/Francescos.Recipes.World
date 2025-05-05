@@ -23,7 +23,7 @@
             return instruction ?? throw new InvalidDataException($"Instruction {instructionId} not found.");
         }
 
-        public async Task<Instruction> CreateInstructionWithImageToRecipeAsync(Guid recipeId, string description, IFormFile? photo)
+        public async Task<Instruction> CreateInstructionAsync(Guid recipeId, string description, IFormFile? photo)
         {
             if (string.IsNullOrWhiteSpace(description))
             {
