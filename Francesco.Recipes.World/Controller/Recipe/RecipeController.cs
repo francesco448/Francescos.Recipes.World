@@ -2,6 +2,8 @@
 {
     using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Models;
+    using Francesco.Recipes.World.Models.BackendModels.Ingredient;
+    using Francesco.Recipes.World.Models.BackendModels.Instruction;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Repositories.Category;
     using Francesco.Recipes.World.Repositories.Favorit;
@@ -14,7 +16,6 @@
     using Francesco.Recipes.World.Views.Recipe;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
-    using Microsoft.EntityFrameworkCore;
 
     public class RecipeController : Controller
     {
@@ -101,6 +102,11 @@
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddOrCreateIngredient(Guid recipeId, string ingredientName, int quantity, Guid unitId)
         {
+            if (recipeId == Guid.Empty)
+            {
+                return BadRequest("Recipe ID cannot be empty.");
+            }
+
             if (quantity <= 0)
             {
                 ModelState.AddModelError(nameof(quantity), "Die Menge muss größer als 0 sein.");
@@ -113,7 +119,7 @@
                 return View();
             }
 
-            await _recipeRepository.AddOrCreateIngredientToRecipeAsync(recipeId, ingredientName, quantity, unitId);
+            await _recipeRepository.CreateRecipeIngredientAsync(recipeId, ingredientName, quantity, unitId);
             return RedirectToAction("Details", new { id = recipeId });
         }
 
@@ -128,32 +134,30 @@
             }
 
             var units = await _unitRepository.GetAllUnitsAsync();
-            ViewBag.Units = new SelectList(units, "Id", "Name");
 
             var viewModel = new CreateRecipeViewModel
             {
                 CategoryId = categoryId,
+                CategoryName = category.Name,
                 IngredientViewModel = new IngredientViewModel
                 {
                     RecipeId = Guid.Empty,
-                    Ingredients = new List<Models.BackendModels.Ingredient.Ingredient>(),
+                    Ingredients = new List<Ingredient>(),
                     Units = units.ToList(),
                 },
                 InstructionViewModel = new InstructionViewModel
                 {
                     RecipeId = Guid.Empty,
-                    Instructions = new List<Models.BackendModels.Instruction.Instruction>(),
+                    Instructions = new List<Instruction>(),
                 },
             };
-
-            ViewBag.CategoryName = category.Name;
             return View(viewModel);
         }
 
         // POST: /Recipe/Create/{categoryId}
         [HttpPost("Create/{categoryId}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Guid categoryId, CreateRecipeViewModel model, IFormFile? photo, IFormFile? video)
+        public async Task<IActionResult> Create(Guid categoryId, CreateRecipeViewModel model)
         {
             if (model == null)
             {
@@ -179,79 +183,124 @@
                 }
 
                 var units = await _unitRepository.GetAllUnitsAsync();
-                ViewBag.Units = new SelectList(units, "Id", "Name");
-                ViewBag.CategoryName = category.Name;
+
+                if (model.IngredientViewModel == null)
+                {
+                    model.IngredientViewModel = new IngredientViewModel
+                    {
+                        RecipeId = Guid.Empty,
+                        Ingredients = new List<Ingredient>(),
+                        Units = units.ToList(),
+                    };
+                }
+                else
+                {
+                    model.IngredientViewModel.Units = units.ToList();
+                }
+
+                model.CategoryName = category.Name;
                 return View(model);
             }
 
-            var categoryEntity = await _categoryRepository.GetCategoryByIdAsync(categoryId);
-            if (categoryEntity == null)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                return NotFound($"Kategorie mit ID {categoryId} wurde nicht gefunden.");
-            }
-
-            model.PreparationTime = new TimeSpan(model.PrepHours, model.PrepMinutes, 0);
-            model.CookingTime = new TimeSpan(model.CookHours, model.CookMinutes, 0);
-
-            var recipe = await _recipeRepository.CreateRecipeForCategoryAsync(
-                categoryEntity,
-                model.Name,
-                model.Description ?? string.Empty,
-                model.Difficulty,
-                model.Servings,
-                model.PreparationTime,
-                model.CookingTime);
-
-            if (photo != null)
-            {
-                await _mediaFileRepository.UploadRecipeMediaAsync(recipe.Id, photo);
-            }
-
-            if (video != null)
-            {
-                await _mediaFileRepository.UploadRecipeMediaAsync(recipe.Id, video);
-            }
-
-            if (model.IngredientViewModel?.Ingredients != null)
-            {
-                foreach (var ingredient in model.IngredientViewModel.Ingredients)
+                var categoryEntity = await _categoryRepository.GetCategoryByIdAsync(categoryId);
+                if (categoryEntity == null)
                 {
-                    var ri = ingredient.RecipeIngredients?.FirstOrDefault();
-                    if (!string.IsNullOrWhiteSpace(ingredient.Name) && ri?.Quantity > 0 && ri?.Unit?.Id != null)
-                    {
-                        await _recipeRepository.AddOrCreateIngredientToRecipeAsync(
-                            recipe.Id,
-                            ingredient.Name,
-                            ri.Quantity,
-                            ri.Unit.Id);
-                    }
+                    return NotFound($"Kategorie mit ID {categoryId} wurde nicht gefunden.");
                 }
-            }
 
-            if (model.InstructionViewModel?.Instructions != null)
-            {
-                for (var i = 0; i < model.InstructionViewModel.Instructions.Count; i++)
+                model.PreparationTime = new TimeSpan(model.PrepHours, model.PrepMinutes, 0);
+                model.CookingTime = new TimeSpan(model.CookHours, model.CookMinutes, 0);
+
+                var recipe = await _recipeRepository.CreateRecipeForCategoryAsync(
+                    categoryEntity,
+                    model.Name,
+                    model.Description ?? string.Empty,
+                    model.Difficulty,
+                    model.Servings,
+                    model.PreparationTime,
+                    model.CookingTime);
+
+                if (model.Photo != null)
                 {
-                    var instruction = model.InstructionViewModel.Instructions[i];
-                    if (!string.IsNullOrWhiteSpace(instruction.Description))
-                    {
-                        var fileKey = $"InstructionViewModel.Instructions[{i}].MediaFile";
-                        IFormFile? imageFile = null;
+                    await _mediaFileRepository.UploadRecipeMediaAsync(recipe.Id, model.Photo);
+                }
 
-                        if (Request.Form.Files.Any(f => f.Name == fileKey))
+                if (model.Video != null)
+                {
+                    await _mediaFileRepository.UploadRecipeMediaAsync(recipe.Id, model.Video);
+                }
+
+                if (model.IngredientViewModel?.Ingredients != null)
+                {
+                    foreach (var ingredient in model.IngredientViewModel.Ingredients)
+                    {
+                        var ri = ingredient.RecipeIngredients?.FirstOrDefault();
+                        if (!string.IsNullOrWhiteSpace(ingredient.Name) && ri?.Quantity > 0 && ri?.Unit?.Id != null)
                         {
-                            imageFile = Request.Form.Files[fileKey];
+                            await _recipeRepository.CreateRecipeIngredientAsync(
+                                recipe.Id,
+                                ingredient.Name,
+                                ri.Quantity,
+                                ri.Unit.Id);
                         }
-
-                        await _instructionRepository.CreateInstructionWithImageToRecipeAsync(
-                            recipe.Id,
-                            instruction.Description,
-                            imageFile);
                     }
                 }
-            }
 
-            return RedirectToAction("Details", new { recipeId = recipe.Id });
+                if (model.InstructionViewModel?.Instructions != null)
+                {
+                    for (var i = 0; i < model.InstructionViewModel.Instructions.Count; i++)
+                    {
+                        var instruction = model.InstructionViewModel.Instructions[i];
+                        if (!string.IsNullOrWhiteSpace(instruction.Description))
+                        {
+                            var fileKey = $"InstructionViewModel.Instructions[{i}].MediaFile";
+                            IFormFile? imageFile = null;
+
+                            if (Request.Form.Files.Any(f => f.Name == fileKey))
+                            {
+                                imageFile = Request.Form.Files[fileKey];
+                            }
+
+                            await _instructionRepository.CreateInstructionAsync(
+                                recipe.Id,
+                                instruction.Description,
+                                imageFile);
+                        }
+                    }
+                }
+
+                await transaction.CommitAsync();
+                return RedirectToAction("Details", new { recipeId = recipe.Id });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                ModelState.AddModelError(string.Empty, $"Ein Fehler ist aufgetreten beim Erstellen des Rezepts: {ex.Message}");
+
+                var category = await _categoryRepository.GetCategoryByIdAsync(categoryId);
+                var units = await _unitRepository.GetAllUnitsAsync();
+
+                if (model.IngredientViewModel == null)
+                {
+                    model.IngredientViewModel = new IngredientViewModel
+                    {
+                        RecipeId = Guid.Empty,
+                        Ingredients = new List<Models.BackendModels.Ingredient.Ingredient>(),
+                        Units = units.ToList(),
+                    };
+                }
+                else
+                {
+                    model.IngredientViewModel.Units = units.ToList();
+                }
+
+                model.CategoryName = category?.Name ?? string.Empty;
+                return View(model);
+            }
         }
 
         // GET: /Recipe/{recipeId}/RemoveIngredient/{ingredientId}
@@ -346,11 +395,7 @@
                 return NotFound("Recipe not found.");
             }
 
-            var instructions = await _context.Instructions
-                .Include(i => i.MediaFiles)
-                .Where(i => i.Recipe.Id == recipeId)
-                .OrderBy(i => i.Number)
-                .ToListAsync();
+            var instructions = await _instructionRepository.GetInstructionsOfRecipeAsync(recipeId);
 
             var viewModel = new InstructionViewModel
             {
@@ -368,7 +413,7 @@
         {
             try
             {
-                await _instructionRepository.CreateInstructionWithImageToRecipeAsync(recipeId, description, image);
+                await _instructionRepository.CreateInstructionAsync(recipeId, description, image);
 
                 var recipe = await _recipeRepository.GetRecipeByIdAsync(recipeId);
                 var instructions = recipe?.Instructions?.ToList() ?? new List<Models.BackendModels.Instruction.Instruction>();
@@ -383,18 +428,7 @@
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
-
-                var recipe = await _recipeRepository.GetRecipeByIdAsync(recipeId);
-                var instructions = recipe?.Instructions?.ToList() ?? new List<Models.BackendModels.Instruction.Instruction>();
-
-                var viewModel = new InstructionViewModel
-                {
-                    RecipeId = recipeId,
-                    Instructions = instructions,
-                };
-
-                return View(viewModel);
+           return BadRequest(ex.Message);
             }
         }
 
@@ -441,7 +475,7 @@
         public async Task<IActionResult> GetIngredients(Guid recipeId)
         {
             var recipeIngredients = (await _ingredientRepository.GetIngredientsByRecipeIdAsync(recipeId)).Select(ri => ri.Ingredient).ToList();
-            var units = (await _unitRepository.GetAllUnitsAsync()).ToList();
+            var units = await _unitRepository.GetAllUnitsAsync();
 
             var viewModel = new IngredientViewModel
             {
