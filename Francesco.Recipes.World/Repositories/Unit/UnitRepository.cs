@@ -35,7 +35,7 @@
             return unit;
         }
 
-        public async Task<IList<Unit>> GetAllUnitsAsync()
+        public async Task<List<Unit>> GetAllUnitsAsync()
         {
             return await _context.Units.ToListAsync();
         }

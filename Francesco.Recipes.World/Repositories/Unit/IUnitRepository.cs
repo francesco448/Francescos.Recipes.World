@@ -8,6 +8,6 @@
 
         Task<Unit> AddUnitAsync(string name, string symbol);
 
-        Task<IList<Unit>> GetAllUnitsAsync();
+        Task<List<Unit>> GetAllUnitsAsync();
     }
 }
