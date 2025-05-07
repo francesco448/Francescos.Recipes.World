@@ -26,6 +26,8 @@ namespace Francesco.Recipes.World.Models
 
         public Guid CategoryId { get; set; }
 
+        public string? CategoryName { get; set; }
+
         public IFormFile? Photo { get; set; }
 
         public IFormFile? Video { get; set; }
