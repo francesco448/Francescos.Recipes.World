@@ -55,6 +55,11 @@
         [HttpGet("{recipeId}/AddOrCreateIngredient")]
         public async Task<IActionResult> AddOrCreateIngredient(Guid recipeId)
         {
+            if (recipeId == Guid.Empty)
+            {
+                return BadRequest("Recipe ID cannot be empty.");
+            }
+
             var units = await _unitRepository.GetAllUnitsAsync();
             var recipeIngredients = await _ingredientRepository.GetIngredientsByRecipeIdAsync(recipeId);
             var ingredients = recipeIngredients.Select(ri => ri.Ingredient).ToList();
@@ -278,28 +283,7 @@
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-
-                ModelState.AddModelError(string.Empty, $"Ein Fehler ist aufgetreten beim Erstellen des Rezepts: {ex.Message}");
-
-                var category = await _categoryRepository.GetCategoryByIdAsync(categoryId);
-                var units = await _unitRepository.GetAllUnitsAsync();
-
-                if (model.IngredientViewModel == null)
-                {
-                    model.IngredientViewModel = new IngredientViewModel
-                    {
-                        RecipeId = Guid.Empty,
-                        Ingredients = new List<Models.BackendModels.Ingredient.Ingredient>(),
-                        Units = units.ToList(),
-                    };
-                }
-                else
-                {
-                    model.IngredientViewModel.Units = units.ToList();
-                }
-
-                model.CategoryName = category?.Name ?? string.Empty;
-                return View(model);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -416,7 +400,7 @@
                 await _instructionRepository.CreateInstructionAsync(recipeId, description, image);
 
                 var recipe = await _recipeRepository.GetRecipeByIdAsync(recipeId);
-                var instructions = recipe?.Instructions?.ToList() ?? new List<Models.BackendModels.Instruction.Instruction>();
+                var instructions = recipe?.Instructions?.ToList() ?? new List<Instruction>();
 
                 var viewModel = new InstructionViewModel
                 {
@@ -428,7 +412,7 @@
             }
             catch (Exception ex)
             {
-           return BadRequest(ex.Message);
+                 return BadRequest(ex.Message);
             }
         }
 
