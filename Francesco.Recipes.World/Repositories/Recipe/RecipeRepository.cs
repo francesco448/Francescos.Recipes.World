@@ -41,7 +41,7 @@
          .FirstOrDefaultAsync(r => r.Id == recipeId);
         }
 
-        public async Task AddOrCreateIngredientToRecipeAsync(Guid recipeId, string ingredientName, int quantity, Guid unitId)
+        public async Task CreateRecipeIngredientAsync(Guid recipeId, string ingredientName, int quantity, Guid unitId)
         {
             var recipe = await GetRecipeAsync(recipeId);
             var unit = await _unitRepository.GetUnitByIdAsync(unitId);
