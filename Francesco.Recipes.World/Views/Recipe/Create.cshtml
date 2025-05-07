@@ -1,58 +1,114 @@
-﻿@model Francesco.Recipes.World.Models.BackendModels.Recipe.Recipe
+﻿@model Francesco.Recipes.World.Models.CreateRecipeViewModel
 @using Francesco.Recipes.World.Models.BackendModels.Recipe
+@using Francesco.Recipes.World.Models
 @{
-	ViewData["Title"] = "Create Recipe";
+	ViewData["Title"] = "Erstelle Rezept";
 }
 
-<h1>Create Recipe</h1>
+<h1 class="mb-4">Erstelle Rezept</h1>
 
-<form method="post" enctype="multipart/form-data">
-	<div class="form-group">
-		<label asp-for="Name"></label>
-		<input asp-for="Name" class="form-control" />
-		<span asp-validation-for="Name" class="text-danger"></span>
+<form method="post" enctype="multipart/form-data" asp-controller="Recipe" asp-action="Create" asp-route-categoryId="@Model.CategoryId">
+	<div class="mb-4">
+		<h2>Allgemein</h2>
+		<div class="form-group">
+			<label asp-for="Name">Name</label>
+			<input asp-for="Name" class="form-control" required />
+			<span asp-validation-for="Name" class="text-danger"></span>
+		</div>
+		<div class="form-group">
+			<label asp-for="Description">Beschreibung</label>
+			<textarea asp-for="Description" class="form-control"></textarea>
+			<span asp-validation-for="Description" class="text-danger"></span>
+		</div>
+		<div class="form-group">
+			<label asp-for="Difficulty">Schwierigkeit</label>
+			<select asp-for="Difficulty" class="form-control" required>
+				<option value="">Schwierigkeit wählen</option>
+				@foreach (var difficulty in Enum.GetValues(typeof(Difficulty)))
+				{
+					<option value="@difficulty">@difficulty</option>
+				}
+			</select>
+			<span asp-validation-for="Difficulty" class="text-danger"></span>
+		</div>
+		<div class="form-row">
+			<div class="col-sm-4">
+				<label asp-for="Servings">Portion (pro Person)</label>
+				<input asp-for="Servings" type="number" min="1" class="form-control" required />
+				<span asp-validation-for="Servings" class="text-danger"></span>
+			</div>
+			<div class="col-sm-4">
+				<label>Vorbereitungszeit</label>
+				<div class="d-flex">
+					<div class="input-group mr-2">
+						<input asp-for="PrepHours" type="number" class="form-control" min="0" value="0" />
+						<div class="input-group-append">
+							<span class="input-group-text">h</span>
+						</div>
+					</div>
+					<div class="input-group">
+						<input asp-for="PrepMinutes" type="number" class="form-control" min="0" max="59" value="0" />
+						<div class="input-group-append">
+							<span class="input-group-text">min</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4">
+				<label>Kochzeit</label>
+				<div class="d-flex">
+					<div class="input-group mr-2">
+						<input asp-for="CookHours" type="number" class="form-control" min="0" value="0" />
+						<div class="input-group-append">
+							<span class="input-group-text">h</span>
+						</div>
+					</div>
+					<div class="input-group">
+						<input asp-for="CookMinutes" type="number" class="form-control" min="0" max="59" value="0" />
+						<div class="input-group-append">
+							<span class="input-group-text">min</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-	<div class="form-group">
-		<label asp-for="Description"></label>
-		<textarea asp-for="Description" class="form-control"></textarea>
-		<span asp-validation-for="Description" class="text-danger"></span>
+
+	<div class="mb-4">
+		<h2>Zutaten</h2>
+		@await Html.PartialAsync("_IngredientsPartial", Model.IngredientViewModel ?? new IngredientViewModel
+{
+	RecipeId = Model.CategoryId, 
+	Ingredients = new List<Francesco.Recipes.World.Models.BackendModels.Ingredient.Ingredient>(),
+	Units = ViewBag.Units ?? new List<Francesco.Recipes.World.Models.BackendModels.Unit.Unit>()
+})
 	</div>
-	<div class="form-group">
-		<label asp-for="Difficulty"></label>
-		<select asp-for="Difficulty" class="form-control">
-			<option value="">Select Difficulty</option>
-			@foreach (var difficulty in Enum.GetValues(typeof(Difficulty)))
-			{
-				<option value="@difficulty">@difficulty</option>
-			}
-		</select>
-		<span asp-validation-for="Difficulty" class="text-danger"></span>
+
+	<div class="mb-4">
+		<h2>Anweisungen</h2>
+		@await Html.PartialAsync("_GetInstructions", Model.InstructionViewModel ?? new InstructionViewModel
+{
+	RecipeId = Model.CategoryId, 
+	Instructions = new List<Francesco.Recipes.World.Models.BackendModels.Instruction.Instruction>()
+})
 	</div>
-	<div class="form-group">
-		<label asp-for="Servings"></label>
-		<input asp-for="Servings" class="form-control" />
-		<span asp-validation-for="Servings" class="text-danger"></span>
+
+	<div class="mb-4">
+		<h2>Bild/Video</h2>
+		<div class="form-group">
+			<label asp-for="Photo">Foto</label>
+			<input asp-for="Photo" class="form-control-file" accept="image/*" />
+		</div>
+		<div class="form-group">
+			<label asp-for="Video">Video</label>
+			<input asp-for="Video" class="form-control-file" accept="video/*" />
+		</div>
 	</div>
-	<div class="form-group">
-		<label asp-for="PreparationTime"></label>
-		<input asp-for="PreparationTime" class="form-control" />
-		<span asp-validation-for="PreparationTime" class="text-danger"></span>
+
+	<div class="text-center mt-4">
+		<button type="submit" class="btn btn-success btn-lg">Rezept speichern</button>
+		<a asp-action="Index" asp-controller="Category" class="btn btn-secondary btn-lg ml-2">Abbrechen</a>
 	</div>
-	<div class="form-group">
-		<label asp-for="CookingTime"></label>
-		<input asp-for="CookingTime" class="form-control" />
-		<span asp-validation-for="CookingTime" class="text-danger"></span>
-	</div>
-	<div class="form-group">
-		<label for="photo">Photo</label>
-		<input type="file" name="photo" class="form-control" />
-	</div>
-	<button type="submit" class="btn btn-primary">Create</button>
 </form>
 
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
 

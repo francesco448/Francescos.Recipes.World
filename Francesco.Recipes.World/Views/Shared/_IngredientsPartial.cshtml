@@ -1,0 +1,31 @@
+﻿@model Francesco.Recipes.World.Models.IngredientViewModel
+@Html.AntiForgeryToken()
+<div id="ingredients-container">
+	@for (int i = 0; i < Model.Ingredients.Count; i++)
+	{
+		<div class="ingredient-item" id="ingredient-@Model.Ingredients[i].Id">
+			<div class="ingredient-controls">
+				<input type="text" name="IngredientViewModel.Ingredients[@i].Name" value="@Model.Ingredients[i].Name" placeholder="Name" class="form-control" />
+				<input type="number" name="IngredientViewModel.Ingredients[@i].RecipeIngredients[0].Quantity" value="@(Model.Ingredients[i].RecipeIngredients.FirstOrDefault()?.Quantity)" placeholder="Menge" class="form-control" />
+				<select name="IngredientViewModel.Ingredients[@i].RecipeIngredients[0].Unit.Id" class="form-control">
+					@foreach (var unit in Model.Units)
+					{
+						@if (Model.Ingredients[i].RecipeIngredients.FirstOrDefault()?.Unit?.Id == unit.Id)
+						{
+							<option value="@unit.Id" selected>@unit.Name (@unit.Symbol)</option>
+						}
+						else
+						{
+							<option value="@unit.Id">@unit.Name (@unit.Symbol)</option>
+						}
+					}
+				</select>
+				<button type="button" class="btn-delete" onclick="removeIngredient('@Model.Ingredients[i].Id')">🗑️</button>
+			</div>
+		</div>
+	}
+</div>
+
+<button type="button" class="btn-add" onclick="addIngredient()">Zutat hinzufügen</button>
+
+

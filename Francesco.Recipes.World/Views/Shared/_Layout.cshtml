@@ -63,7 +63,18 @@
 	<script src="~/js/site.js" asp-append-version="true"></script>
 	<script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.js" integrity="sha384-oeUn82QNXPuVkGCkcrInrS1twIxKhkZiFfr2TdiuObZ3n3yIeMiqcRzkIcguaof1" crossorigin="anonymous"></script>
 	<script>
-		// Light/Dark mode toggle logic
+
+			let recipeId;
+		@if (ViewData["RecipeId"] != null)
+		{
+			<text>recipeId = '@ViewData["RecipeId"]';</text>
+		}
+		else if (ViewData["CategoryId"] != null)
+		{
+			<text>recipeId = '@ViewData["CategoryId"]';</text>
+		}
+
+
 		const darkModeToggle = document.getElementById('darkModeToggle');
 		const lightModeToggle = document.getElementById('lightModeToggle');
 		darkModeToggle.addEventListener('click', () => {
@@ -72,8 +83,8 @@
 		lightModeToggle.addEventListener('click', () => {
 			document.body.classList.remove('bg-dark', 'text-white');
 		});
-	</script>
-	<script>
+
+
 		document.body.addEventListener('htmx:configRequest', (event) => {
 			const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 			if (token) {
@@ -81,7 +92,7 @@
 			}
 		});
 	</script>
-
+	@await Html.PartialAsync("_ValidationScriptsPartial")
 	@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -13,8 +13,8 @@
 
         public byte[]? Data { get; set; }
 
-        public virtual Recipe? Recipe { get; set; } = new ();
+        public virtual Recipe? Recipe { get; set; } = null;
 
-        public virtual Instruction Instruction { get; set; } = new ();
+        public virtual Instruction? Instruction { get; set; } = null;
     }
 }

@@ -6,7 +6,7 @@
     {
         Task<Instruction> GetInstructionAsync(Guid instructionId);
 
-        Task<Instruction> CreateInstructionToRecipeAsync(Guid recipeId, string description);
+        Task<Instruction> CreateInstructionAsync(Guid recipeId, string description, IFormFile? photo);
 
         Task RemoveInstructionFromRecipeAsync(Guid recipeId, Guid instructionId);
 

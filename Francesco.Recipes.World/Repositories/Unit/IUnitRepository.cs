@@ -8,6 +8,6 @@
 
         Task<Unit> AddUnitAsync(string name, string symbol);
 
-        Task<IEnumerable<Unit>> GetAllUnitsAsync();
+        Task<List<Unit>> GetAllUnitsAsync();
     }
 }

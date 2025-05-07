@@ -15,7 +15,7 @@
 
         // POST: /UploadImage
         [HttpPost("UploadImage")]
-        [AutoValidateAntiforgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadImage(Guid recipeId, IFormFile? mediaFile)
         {
             if (mediaFile is null)
@@ -42,7 +42,7 @@
         }
 
         [HttpPost("ReplaceInstructionImage")]
-        [AutoValidateAntiforgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReplaceInstructionImage(Guid instructionId, Guid mediaFileIdToReplace, IFormFile? newPhoto)
         {
             if (newPhoto is null)
@@ -65,6 +65,32 @@
                 {
                     return StatusCode(500, $"Internal server error: {ex.Message}");
                 }
+            }
+        }
+
+        [HttpPost("Recipe/{recipeId}/Instruction/{instructionId}/UploadImage")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadInstructionImage(Guid recipeId, Guid instructionId, IFormFile? photo)
+        {
+            if (recipeId == Guid.Empty)
+            {
+                return BadRequest("Recipe ID is required.");
+            }
+
+            if (photo == null)
+            {
+                return BadRequest("Photo is required.");
+            }
+
+            try
+            {
+                await _mediaFileRepository.UploadInstructionImageAsync(instructionId, photo);
+
+                return RedirectToAction("GetInstructions", "Instruction", new { recipeId });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }

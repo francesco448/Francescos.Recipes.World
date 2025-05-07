@@ -20,3 +20,68 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.instruction-item, .ingredient-item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.instruction-controls, .ingredient-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.instruction-media {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    margin-right: 10px;
+}
+
+    .instruction-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.instruction-file {
+    max-width: 200px;
+}
+
+textarea.form-control {
+    min-height: 80px;
+}
+
+.btn-delete, .btn-move-up, .btn-move-down, .btn-save {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.btn-delete {
+    color: #dc3545;
+}
+
+.btn-save {
+    color: #28a745;
+}
+
+.instruction-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.btn-add {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}

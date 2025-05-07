@@ -71,11 +71,8 @@
 			<div class="col-md-3 mb-4">
 				<div class="card h-100 text-center">
 					<div class="card-body d-flex flex-column justify-content-center">
-						<a href="/Recipe/Create?categoryId=@category.Category.Id"
-						   class="btn btn-outline-primary"
-						   hx-get="/Recipe/Create?categoryId=@category.Category.Id"
-						   hx-target="#category-@category.Category.Id"
-						   hx-swap="beforeend">Rezept hinzufügen</a>
+						<a href="/Create/@category.Category.Id"
+						   class="btn btn-outline-primary">Rezept hinzufügen</a>
 					</div>
 				</div>
 			</div>

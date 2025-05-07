@@ -9,7 +9,7 @@
 
         Task<Recipe?> GetRecipeByIdAsync(Guid id);
 
-        Task AddOrCreateIngredientToRecipeAsync(Guid recipeId, string ingredientName, int quantity, Guid unitId);
+        Task CreateRecipeIngredientAsync(Guid recipeId, string ingredientName, int quantity, Guid unitId);
 
         Task RemoveIngredientFromRecipeAsync(Guid recipeId, Guid ingredientId);
 

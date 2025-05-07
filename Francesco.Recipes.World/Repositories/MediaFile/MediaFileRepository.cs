@@ -64,6 +64,7 @@
                     MimeType = photo.ContentType,
                     Data = memoryStream.ToArray(),
                     Instruction = instruction,
+                    Recipe = null,
                 };
 
                 _context.Add(instructionImage);
@@ -73,44 +74,52 @@
 
         public async Task UploadRecipeMediaAsync(Guid recipeId, IFormFile mediaFile)
         {
-            if (mediaFile == null)
+            if (mediaFile == null || mediaFile.Length == 0)
             {
-                throw new ArgumentNullException(nameof(mediaFile));
+                return;
             }
 
-            var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
-
-            var isImage = mediaFile.ContentType.StartsWith("image/");
-            var isVideo = mediaFile.ContentType.StartsWith("video/");
-
-            if (!isImage && !isVideo)
+            try
             {
-                throw new InvalidOperationException("Only image or video files are allowed.");
+                var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
+
+                var isImage = mediaFile.ContentType.StartsWith("image/");
+                var isVideo = mediaFile.ContentType.StartsWith("video/");
+
+                if (!isImage && !isVideo)
+                {
+                    throw new InvalidOperationException("Only image or video files are allowed.");
+                }
+
+                if (isImage)
+                {
+                    await RemoveExistingMediaAsync(recipe, "image/");
+                }
+                else
+                {
+                    await RemoveExistingMediaAsync(recipe, "video/");
+                }
+
+                using var memoryStream = new MemoryStream();
+                await mediaFile.CopyToAsync(memoryStream);
+
+                var newMedia = new MediaFile
+                {
+                    Id = Guid.NewGuid(),
+                    FileName = mediaFile.FileName,
+                    MimeType = mediaFile.ContentType,
+                    Data = memoryStream.ToArray(),
+                    Recipe = recipe,
+                    Instruction = null,
+                };
+
+                _context.MediaFiles.Add(newMedia);
+                await _context.SaveChangesAsync();
             }
-
-            if (isImage)
+            catch (Exception ex)
             {
-                await RemoveExistingMediaAsync(recipe, "image/");
+                throw new InvalidOperationException("An error occurred while uploading the media file.", ex);
             }
-            else
-            {
-                await RemoveExistingMediaAsync(recipe, "video/");
-            }
-
-            using var memoryStream = new MemoryStream();
-            await mediaFile.CopyToAsync(memoryStream);
-
-            var newMedia = new MediaFile
-            {
-                Id = Guid.NewGuid(),
-                FileName = mediaFile.FileName,
-                MimeType = mediaFile.ContentType,
-                Data = memoryStream.ToArray(),
-                Recipe = recipe,
-            };
-
-            _context.MediaFiles.Add(newMedia);
-            await _context.SaveChangesAsync();
         }
 
         private async Task RemoveExistingMediaAsync(Recipe recipe, string mediaTypePrefix)
