@@ -38,6 +38,7 @@
              .ThenInclude(ri => ri.Unit)
          .Include(r => r.MediaFiles)
          .Include(r => r.Instructions)
+            .ThenInclude(i => i.MediaFiles)
          .FirstOrDefaultAsync(r => r.Id == recipeId);
         }
 
@@ -181,6 +182,48 @@
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
                 .ToListAsync();
+        }
+
+        public async Task DeleteRecipeAsync(Guid recipeId)
+        {
+            var recipe = await GetRecipeByIdAsync(recipeId);
+
+            if (recipe == null)
+            {
+                throw new InvalidDataException($"Rezept mit ID {recipeId} nicht gefunden.");
+            }
+
+            if (recipe.RecipeIngredients != null && recipe.RecipeIngredients.Any())
+            {
+                _context.RecipeIngredients.RemoveRange(recipe.RecipeIngredients);
+            }
+
+            if (recipe.Instructions != null && recipe.Instructions.Any())
+            {
+                foreach (var instruction in recipe.Instructions)
+                {
+                    if (instruction.MediaFiles != null && instruction.MediaFiles.Any())
+                    {
+                        _context.MediaFiles.RemoveRange(instruction.MediaFiles);
+                    }
+                }
+
+                _context.Instructions.RemoveRange(recipe.Instructions);
+            }
+
+            if (recipe.MediaFiles != null && recipe.MediaFiles.Any())
+            {
+                _context.MediaFiles.RemoveRange(recipe.MediaFiles);
+            }
+
+            if (recipe.Favorit != null && recipe.Favorit.Id != Guid.Empty)
+            {
+                _context.Remove(recipe.Favorit);
+            }
+
+            _context.Recipes.Remove(recipe);
+
+            await _context.SaveChangesAsync();
         }
     }
 }
