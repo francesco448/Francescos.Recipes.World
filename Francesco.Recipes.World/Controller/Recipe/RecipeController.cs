@@ -412,7 +412,7 @@
             }
             catch (Exception ex)
             {
-                 return BadRequest(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -469,6 +469,50 @@
             };
 
             return PartialView("_IngredientsPartial", viewModel);
+        }
+
+        // GET: /Recipe/{recipeId}/AdjustableIngredients
+        [HttpGet("{recipeId}/AdjustableIngredients")]
+        public async Task<IActionResult> GetAdjustableIngredients(Guid recipeId)
+        {
+            var recipe = await _recipeRepository.GetRecipeByIdAsync(recipeId);
+            if (recipe == null)
+            {
+                return NotFound("Recipe not found.");
+            }
+
+            return PartialView("_AdjustableIngredientsPartial", recipe);
+        }
+
+        // GET: /Recipe/{recipeId}/Delete
+        [HttpGet("{recipeId}/Delete")]
+        public async Task<IActionResult> Delete(Guid recipeId)
+        {
+            var recipe = await _recipeRepository.GetRecipeByIdAsync(recipeId);
+            if (recipe == null)
+            {
+                return NotFound("Recipe not found.");
+            }
+
+            return View(recipe);
+        }
+
+        // POST: /Recipe/{recipeId}/Delete
+        [HttpPost("{recipeId}/Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(Guid recipeId)
+        {
+            try
+            {
+                await _recipeRepository.DeleteRecipeAsync(recipeId);
+                TempData["SuccessMessage"] = "Rezept wurde erfolgreich gelöscht.";
+                return RedirectToAction("CategoryRecipes", "Recipe");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Ein Fehler ist aufgetreten: {ex.Message}";
+                return RedirectToAction("Details", new { recipeId });
+            }
         }
     }
 }
