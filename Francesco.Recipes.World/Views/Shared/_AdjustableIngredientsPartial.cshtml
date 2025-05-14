@@ -1,0 +1,36 @@
+﻿@model Francesco.Recipes.World.Models.BackendModels.Recipe.Recipe
+
+<div class="adjustable-ingredients">
+	<div class="serving-adjustment mb-3" data-original-servings="@Model.Servings">
+		<h3>Ingredients</h3>
+		<div class="d-flex align-items-center mb-2">
+			<label for="servingsInput" class="me-2">Adjust servings:</label>
+			<div class="input-group" style="max-width: 150px;">
+				<button type="button" class="btn btn-outline-secondary" id="decreaseServings">-</button>
+				<input type="number" class="form-control text-center" id="servingsInput" value="@Model.Servings" min="1">
+				<button type="button" class="btn btn-outline-secondary" id="increaseServings">+</button>
+			</div>
+			<span class="ms-2 text-muted">(Original: @Model.Servings)</span>
+		</div>
+	</div>
+
+	<form id="ingredient-form">
+		<ul id="adjustable-ingredient-list">
+			@foreach (var ingredient in Model.RecipeIngredients)
+			{
+				<li id="ingredient-@ingredient.Id"
+					data-ingredient-id="@ingredient.Id"
+					data-original-quantity="@ingredient.Quantity"
+					data-ingredient-name="@ingredient.Ingredient.Name"
+					data-unit="@(ingredient.Unit?.Symbol ?? string.Empty)">
+					<input type="checkbox" name="ingredientIds" value="@ingredient.Id" />
+					<span class="ingredient-name">@ingredient.Ingredient.Name</span> -
+					<span class="ingredient-quantity">@ingredient.Quantity</span>
+					<span class="ingredient-unit">@(ingredient.Unit != null ? ingredient.Unit.Symbol : string.Empty)</span>
+					<span class="ingredient-note"></span>
+				</li>
+			}
+		</ul>
+		<button type="button" class="btn btn-primary mt-2" onclick="addSelectedIngredientsToShoppingList('@Model.Id')">Add Selected to Shopping List</button>
+	</form>
+</div>
