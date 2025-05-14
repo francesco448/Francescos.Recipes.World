@@ -506,7 +506,7 @@
             {
                 await _recipeRepository.DeleteRecipeAsync(recipeId);
                 TempData["SuccessMessage"] = "Rezept wurde erfolgreich gelöscht.";
-                return RedirectToAction("CategoryRecipes", "Recipe");
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
