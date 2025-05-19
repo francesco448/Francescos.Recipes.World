@@ -109,6 +109,22 @@
             return shoppingList;
         }
 
+        public async Task<ShoppingList?> GetByIdAsync(Guid shoppingListId)
+        {
+            return await _context.ShoppingLists
+                .Include(sl => sl.RecipeShoppingList)
+                    .ThenInclude(rsl => rsl.Recipe)
+                .Include(sl => sl.RecipeShoppingList)
+                    .ThenInclude(rsl => rsl.SelectedIngredients)
+                        .ThenInclude(si => si.RecipeIngredient)
+                            .ThenInclude(ri => ri.Ingredient)
+                .Include(sl => sl.RecipeShoppingList)
+                    .ThenInclude(rsl => rsl.SelectedIngredients)
+                        .ThenInclude(si => si.RecipeIngredient)
+                            .ThenInclude(ri => ri.Unit)
+                .FirstOrDefaultAsync(sl => sl.Id == shoppingListId);
+        }
+
         public async Task<IEnumerable<RecipeIngredientShoppingList>> GetIngredientsOfRecipeInListAsync(Guid shoppingListRecipeId)
         {
             return await _context.RecipeIngredientsShoppingLists
