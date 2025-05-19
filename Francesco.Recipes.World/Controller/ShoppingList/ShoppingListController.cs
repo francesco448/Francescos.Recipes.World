@@ -5,6 +5,7 @@
     using Francesco.Recipes.World.Repositories.ShoppingList;
     using Microsoft.AspNetCore.Mvc;
 
+    [Route("ShoppingList")]
     public class ShoppingListController : Controller
     {
         private readonly IShoppingListRepository _shoppingListRepository;
@@ -38,6 +39,34 @@
             }
 
             return Json(new { shoppingListId = shoppingList.Id });
+        }
+
+        [HttpGet("RecipeCount")]
+        public async Task<IActionResult> RecipeCount()
+        {
+            var count = await _shoppingListRepository.CountAllRecipeShoppinglistsAsync();
+            return Json(new { count });
+        }
+
+        // GET: /ShoppingList/Details/{id}
+        [HttpGet("Details/{id}")]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var shoppingList = await _shoppingListRepository.GetByIdAsync(id);
+            var recipeCount = await _shoppingListRepository.CountAllRecipeShoppinglistsAsync();
+
+            if (shoppingList == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new ShoppingListDetailsViewModel
+            {
+                ShoppingList = shoppingList,
+                RecipeCount = recipeCount,
+            };
+
+            return View(viewModel);
         }
     }
 }
