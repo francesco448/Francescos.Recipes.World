@@ -1,56 +1,38 @@
-﻿@model Francesco.Recipes.World.Models.BackendModels.Shoppinglist.ShoppingList
-@using Francesco.Recipes.World.Models.BackendModels.RecipeShoppingList
-@using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient
-@using Francesco.Recipes.World.Models.BackendModels.Recipe
-
+﻿@model Francesco.Recipes.World.Models.ShoppingListDetailsViewModel
 @{
 	ViewData["Title"] = "Einkaufsliste Details";
 }
 
 <h2>Einkaufsliste Details</h2>
-
-@if (TempData["SuccessMessage"] != null)
-{
-	<div class="alert alert-success">
-		@TempData["SuccessMessage"]
-	</div>
-}
-
-<div>
-	<h4>Einkaufsliste</h4>
-	<hr />
-	<dl class="row">
-		<dt class="col-sm-2">
-			ID
-		</dt>
-		<dd class="col-sm-10">
-			@Model.Id
-		</dd>
-	</dl>
+<div style="border:2px solid black; border-radius:30px; padding:10px 30px; display:inline-block; margin-bottom:20px;">
+	Anzahl Rezepte: <span id="recipeCount">@Model.RecipeCount</span>
 </div>
 
-<h4>Rezepte</h4>
-<table class="table">
-	<thead>
-		<tr>
-			<th>Rezeptname</th>
-			<th>Zutaten</th>
-		</tr>
-	</thead>
-	<tbody>
-		@foreach (var recipeShoppingList in Model.RecipeShoppingList)
-		{
-			<tr>
-				<td>@recipeShoppingList.Recipe.Name</td>
-				<td>
-					<ul>
-						@foreach (var ingredient in recipeShoppingList.SelectedIngredients)
-						{
-							<li>@ingredient.RecipeIngredient.Ingredient.Name - @ingredient.RecipeIngredient.Quantity @ingredient.RecipeIngredient.Unit.Name</li>
-						}
-					</ul>
-				</td>
-			</tr>
+
+@section Scripts {
+<script>
+	async function updateRecipeCount() {
+		try {
+			const response = await fetch('/ShoppingList/RecipeCount');
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+			const data = await response.json();
+			document.getElementById('recipeCount').textContent = data.count;
+		} catch (err) {
+			console.error("Fehler beim Aktualisieren der Rezeptanzahl:", err);
 		}
-	</tbody>
-</table>
+	}
+
+	const countUpdateInterval = setInterval(updateRecipeCount, 5000);
+
+
+	document.addEventListener('shopping-list-changed', function() {
+		updateRecipeCount();
+	});
+
+	window.addEventListener('beforeunload', function() {
+	clearInterval(countUpdateInterval);
+	});
+</script>
+}
