@@ -60,10 +60,15 @@
                 return NotFound();
             }
 
+            var recipeInAnyShoppingList = (await _shoppingListRepository.GetAllShoppingListsAsync())
+                .SelectMany(sl => sl.RecipeShoppingList.Select(rsl => rsl.Recipe))
+                .ToList();
+
             var viewModel = new ShoppingListDetailsViewModel
             {
                 ShoppingList = shoppingList,
                 RecipeCount = recipeCount,
+                RecipesInAnyShoppingList = recipeInAnyShoppingList,
             };
 
             return View(viewModel);
