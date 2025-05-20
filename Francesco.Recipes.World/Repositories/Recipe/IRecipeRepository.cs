@@ -19,6 +19,6 @@
 
         Task<IEnumerable<Recipe>> SearchInRecipesAndIngredients(string searchterm);
 
-        Task DeleteRecipeAsync(Guid recipeId);
+        Task<bool> DeleteRecipeAsync(Guid recipeId);
     }
 }

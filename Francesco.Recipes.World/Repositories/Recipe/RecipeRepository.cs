@@ -184,13 +184,13 @@
                 .ToListAsync();
         }
 
-        public async Task DeleteRecipeAsync(Guid recipeId)
+        public async Task<bool> DeleteRecipeAsync(Guid recipeId)
         {
             var recipe = await GetRecipeByIdAsync(recipeId);
 
             if (recipe == null)
             {
-                throw new InvalidDataException($"Rezept mit ID {recipeId} nicht gefunden.");
+                return false;
             }
 
             if (recipe.RecipeIngredients != null && recipe.RecipeIngredients.Any())
@@ -224,6 +224,7 @@
             _context.Recipes.Remove(recipe);
 
             await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
