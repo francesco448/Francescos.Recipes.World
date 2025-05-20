@@ -6,12 +6,16 @@
 	<div class="instructions-grid">
 		@{
 			var groupedInstructions = Model.Instructions.OrderBy(i => i.Number).ToList();
-			var rows = (int)Math.Ceiling(groupedInstructions.Count / 3.0);
+			var instructionRows = groupedInstructions
+			.Select((instruction, index) => new { Instruction = instruction, Index = index })
+			.GroupBy(x => x.Index / 3)
+			.Select(g => g.Select(x => x.Instruction).ToList())
+			.ToList();
 
-			for (int row = 0; row < rows; row++)
+			foreach (var row in instructionRows)
 			{
 				<div class="instruction-row">
-					@for (int col = 0; col < 3 && (row * 3 + col < groupedInstructions.Count); col++)
+					@for (var instruction in row)
 					{
 						var instruction = groupedInstructions[row * 3 + col];
 						<div class="instruction-card">
