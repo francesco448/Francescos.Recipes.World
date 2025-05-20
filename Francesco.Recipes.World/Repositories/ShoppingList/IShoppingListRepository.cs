@@ -21,5 +21,7 @@
         Task<ShoppingList?> GetByIdAsync(Guid shoppingListId);
 
         Task<int> CountAllRecipeShoppinglistsAsync();
+
+        Task<IList<ShoppingList>> GetAllShoppingListsAsync();
     }
 }
