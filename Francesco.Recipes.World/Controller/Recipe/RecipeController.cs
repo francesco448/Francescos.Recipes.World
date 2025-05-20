@@ -305,8 +305,8 @@
             return View();
         }
 
-        // POST: /Recipe/{recipeId}/RemoveIngredient/{ingredientId}
-        [HttpPost("{recipeId}/RemoveIngredient/{ingredientId}")]
+        // DELETE: /Recipe/{recipeId}/RemoveIngredient/{ingredientId}
+        [HttpDelete("{recipeId}/RemoveIngredient/{ingredientId}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveIngredientConfirmed(Guid recipeId, Guid ingredientId)
         {
@@ -338,8 +338,8 @@
             return View();
         }
 
-        // POST: /Recipe/{recipeId}/RemoveInstruction/{instructionId}
-        [HttpPost("{recipeId}/RemoveInstruction/{instructionId}")]
+        // DELETE: /Recipe/{recipeId}/RemoveInstruction/{instructionId}
+        [HttpDelete("{recipeId}/RemoveInstruction/{instructionId}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveInstructionConfirmed(Guid recipeId, Guid instructionId)
         {
@@ -498,19 +498,20 @@
         }
 
         // POST: /Recipe/{recipeId}/Delete
-        [HttpPost("{recipeId}/Delete")]
+        [HttpDelete("{recipeId}/Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid recipeId)
         {
-            try
+            var deleted = await _recipeRepository.DeleteRecipeAsync(recipeId);
+
+            if (deleted)
             {
-                await _recipeRepository.DeleteRecipeAsync(recipeId);
                 TempData["SuccessMessage"] = "Rezept wurde erfolgreich gelöscht.";
                 return RedirectToAction("Index", "Home");
             }
-            catch (Exception ex)
+            else
             {
-                TempData["ErrorMessage"] = $"Ein Fehler ist aufgetreten: {ex.Message}";
+                TempData["ErrorMessage"] = "Rezept nicht gefunden oder konnte nicht gelöscht werden.";
                 return RedirectToAction("Details", new { recipeId });
             }
         }
