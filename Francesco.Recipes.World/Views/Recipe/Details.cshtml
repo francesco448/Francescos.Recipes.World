@@ -24,7 +24,7 @@
 		<p><strong>Cooking Time:</strong> @Model.CookingTime</p>
 	</div>
 
-	<partial name="_AdjustableIngredientsPartial" model="Model" />
+	@await Html.PartialAsync("_AdjustableIngredientsPartial", Model)
 
 	@await Html.PartialAsync("_RecipeInstructionGridPartial", new Francesco.Recipes.World.Models.InstructionViewModel
 {
