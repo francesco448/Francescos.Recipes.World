@@ -1,4 +1,5 @@
-﻿using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
+﻿using Francesco.Recipes.World.Models.BackendModels.Recipe;
+using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
 
 namespace Francesco.Recipes.World.Models
 {
@@ -7,5 +8,7 @@ namespace Francesco.Recipes.World.Models
         public ShoppingList ShoppingList { get; set; } = new ShoppingList();
 
         public int RecipeCount { get; set; }
+
+        public List<Recipe> RecipesInAnyShoppingList { get; set; } = new List<Recipe>();
     }
 }
