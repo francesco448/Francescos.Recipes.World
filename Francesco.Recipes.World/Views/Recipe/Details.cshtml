@@ -27,6 +27,7 @@
 	<div class="recipe-ingredients">
 		<h3>Ingredients</h3>
 		<form id="ingredient-form">
+			@Html.AntiForgeryToken()
 			<ul id="ingredient-list">
 				@foreach (var ingredient in Model.RecipeIngredients)
 				{
@@ -48,10 +49,14 @@
 			var formData = new FormData(form);
 			var selectedIngredientIds = formData.getAll('ingredientIds');
 
+
+			var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
 			var response = await fetch('/ShoppingList/CreateOrAddIngredients', {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+					'RequestVerificationToken': token 
 				},
 				body: JSON.stringify({ recipeId: '@Model.Id', ingredientIds: selectedIngredientIds })
 			});
@@ -59,10 +64,11 @@
 			if (response.ok) {
 				var result = await response.json();
 				localStorage.setItem('shoppingListId', result.shoppingListId);
-				alert('Shopping list updated.');
+				alert('Zutaten wurden zur Einkaufsliste hinzugefügt.');
 			} else {
-				alert('Failed to update shopping list.');
+				alert('Fehler beim Hinzufügen zur Einkaufsliste.');
 			}
 		}
+
 	</script>
 }
