@@ -39,7 +39,6 @@
 				var mimeType = mediaFile?.MimeType;
 
 				<div class="col-md-3 mb-4">
-					<a href="/Recipe/Details/@recipe.Id" class="text-decoration-none">
 						<div class="card h-100">
 							<div class="recipe-image">
 								@if (imageData != null && mimeType != null)
@@ -60,11 +59,10 @@
 									@await Html.PartialAsync("_FavoriteButton", recipe)
 								</div>
 
-								<a href="/Recipe/Details/@recipe.Id"
+								<a href="/Details/@recipe.Id"
 								   class="btn btn-primary mt-auto">Details</a>
 							</div>
 						</div>
-					</a>
 				</div>
 			}
 
