@@ -1,95 +1,332 @@
 ﻿@model Francesco.Recipes.World.Models.ShoppingListDetailsViewModel
 @{
-	ViewData["Title"] = "Einkaufsliste Details";
+    ViewData["Title"] = "Einkaufsliste Details";
 }
 
-<h2>Einkaufsliste Details</h2>
-<div style="border:2px solid black; border-radius:30px; padding:10px 30px; display:inline-block; margin-bottom:20px;">
-	Anzahl Rezepte: <span id="recipeCount">@Model.RecipeCount</span>
+@using System.Text.Json
+@{
+	var recipeIngredientsJson = JsonSerializer.Serialize(
+		Model.RecipesInAnyShoppingList.ToDictionary(
+			r => r.Id,
+			r => r.RecipeIngredients.Select(ri => new
+			{
+				id = ri.Id,
+				name = ri.Ingredient.Name,
+				amount = ri.Quantity,
+				unit = ri.Unit.Name,
+				shoppingListId = Model.RecipeIngredientToShoppingListMap.ContainsKey(ri.Id)
+					? Model.RecipeIngredientToShoppingListMap[ri.Id]
+					: Guid.Empty
+			})
+		)
+	);
+
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Einkaufsliste Details</h2>
+        <div style="border:2px solid black; border-radius:30px; padding:10px 30px; display:inline-block;">
+            Anzahl Rezepte: <span id="recipeCount">@Model.RecipeCount</span>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center mb-4">
+        <button class="btn btn-outline-secondary me-2" type="button" id="carouselLeft">
+            <i class="bi bi-arrow-left"></i>
+        </button>
+        <div class="flex-grow-1 overflow-auto" style="white-space:nowrap;" id="recipeCarousel">
+            @foreach (var recipe in Model.RecipesInAnyShoppingList)
+            {
+                var mediaFile = recipe.MediaFiles?.FirstOrDefault();
+                var imageData = mediaFile?.Data;
+                var mimeType = mediaFile?.MimeType;
+                var ingredientCount = recipe.RecipeIngredients?.Count() ?? 0;
+
+                <div class="card d-inline-block mx-2 recipe-card"
+                     data-recipe-id="@recipe.Id"
+                     style="width: 180px; vertical-align:top; border: 1px solid #000;">
+                    <div class="position-relative">
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <button class="btn btn-sm btn-link text-dark" title="Rezept entfernen" 
+							onclick="removeRecipe('@recipe.Id');">
+                                <i class="bi bi-trash" style="font-size: 1.2rem;"></i>
+                            </button>
+                        </div>
+                        <div class="text-center p-2" style="height: 120px; display: flex; align-items: center; justify-content: center;">
+                            @if (imageData != null && mimeType != null)
+                            {
+                                <img src="data:@mimeType;base64,@Convert.ToBase64String(imageData)"
+                                     alt="@recipe.Name"
+                                     style="max-height: 100%; max-width: 100%; object-fit: contain;" />
+                            }
+                            else
+                            {
+                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i>
+                                </div>
+                            }
+                        </div>
+                        <div class="p-2 text-center" style="border-top: 1px solid #000; background-color: #fff;">
+                            <div class="recipe-name" style="font-weight: bold; font-size: 0.9rem; white-space: normal; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; height: 40px;">@recipe.Name</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <button class="btn btn-outline-secondary ms-2" type="button" id="carouselRight">
+            <i class="bi bi-arrow-right"></i>
+        </button>
+    </div>
+    
+    <div id="ingredientListContainer" class="mt-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Zutaten</h4>
+            </div>
+            <div class="card-body">
+                <ul id="ingredientList" class="list-group"></ul>
+                <div class="text-center mt-3">
+                    <button id="removeSelectedButton" class="btn" onclick="removeSelectedIngredients()">
+                      ENTFERNE MARKIERTE
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<div class="d-flex align-items-center mb-4">
-	<button class="btn btn-outline-secondary me-2" type="button" id="carouselLeft">
-		<i class="bi bi-arrow-left"></i>
-	</button>
-	<div class="flex-grow-1 overflow-auto" style="white-space:nowrap;" id="recipeCarousel">
-		@foreach (var recipe in Model.RecipesInAnyShoppingList)
-		{
-			var mediaFile = recipe.MediaFiles?.FirstOrDefault();
-			var imageData = mediaFile?.Data;
-			var mimeType = mediaFile?.MimeType;
-
-			<div class="card d-inline-block mx-2" style="width: 180px; vertical-align:top; border: 1px solid #000;">
-				<div class="position-relative">
-					<div class="position-absolute top-0 end-0 p-2">
-						<button class="btn btn-sm btn-link text-dark" title="Rezept entfernen">
-							<i class="bi bi-trash" style="font-size: 1.2rem;"></i>
-						</button>
-					</div>
-					<div class="text-center p-2" style="height: 120px; display: flex; align-items: center; justify-content: center;">
-						@if (imageData != null && mimeType != null)
-						{
-							<img src="data:@mimeType;base64,@Convert.ToBase64String(imageData)"
-								 alt="@recipe.Name"
-								 style="max-height: 100%; max-width: 100%; object-fit: contain;" />
-						}
-						else
-						{
-							<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-								<i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i>
-							</div>
-						}
-					</div>
-					<div class="p-2 text-center" style="border-top: 1px solid #000; background-color: #fff;">
-						<div class="recipe-name" style="font-weight: bold; font-size: 0.9rem; white-space: normal; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; height: 40px;">@recipe.Name</div>
-					</div>
-					<div style="height: 10px; background-color: #000;"></div>
-				</div>
-			</div>
-		}
-
-		}
-
-	</div>
-	<button class="btn btn-outline-secondary ms-2" type="button" id="carouselRight">
-		<i class="bi bi-arrow-right"></i>
-	</button>
-</div>
-
-
-
 
 @section Scripts {
-<script>
-	async function updateRecipeCount() {
-		try {
-			const response = await fetch('/ShoppingList/RecipeCount');
-			if (!response.ok) {
-				throw new Error(`HTTP error! Status: ${response.status}`);
+	@Html.AntiForgeryToken()
+	<script>
+				const selectedIngredients = new Set();
+				const recipeIngredients = @Html.Raw(recipeIngredientsJson);
+				let activeRecipeId = Object.keys(recipeIngredients)[0];
+				async function updateRecipeCount() {
+					try {
+						const response = await fetch('/ShoppingList/RecipeCount');
+						if (!response.ok) {
+							throw new Error(`HTTP error! Status: ${response.status}`);
+						}
+						const data = await response.json();
+						document.getElementById('recipeCount').textContent = data.count;
+					} catch (err) {
+						console.error("Fehler beim Aktualisieren der Rezeptanzahl:", err);
+					}
+				}
+
+				const countUpdateInterval = setInterval(updateRecipeCount, 5000);
+
+				document.addEventListener('shopping-list-changed', function() {
+					updateRecipeCount();
+				});
+
+				window.addEventListener('beforeunload', function() {
+					clearInterval(countUpdateInterval);
+				});
+
+				document.getElementById('carouselLeft').onclick = function() {
+					document.getElementById('recipeCarousel').scrollBy({ left: -200, behavior: 'smooth' });
+				};
+				document.getElementById('carouselRight').onclick = function() {
+					document.getElementById('recipeCarousel').scrollBy({ left: 200, behavior: 'smooth' });
+				};
+				function renderIngredientList(recipeId) {
+					const list = document.getElementById('ingredientList');
+					list.innerHTML = '';
+					const ingredients = recipeIngredients[recipeId] || [];
+					if (ingredients.length === 0) {
+						list.innerHTML = '<li class="list-group-item text-muted">Keine Zutaten vorhanden.</li>';
+						return;
+					}
+					ingredients.forEach(ingredient => {
+						const isSelected = selectedIngredients.has(ingredient.id);
+						const li = document.createElement('li');
+						li.className = 'list-group-item d-flex justify-content-between align-items-center';
+						if (isSelected) {
+							li.classList.add('selected-ingredient');
+						}
+						li.innerHTML = `
+		<span>
+		<strong>${ingredient.name}</strong>
+		<span class="text-secondary ms-2">${ingredient.amount} ${ingredient.unit}</span>
+		</span>
+		<button class="btn btn-sm btn-outline-danger" title="Zutat entfernen" onclick="toggleIngredientSelection('${ingredient.id}', this); event.stopPropagation();" ${isSelected ? '' : ''}>
+		<i class="bi bi-dash"></i>
+		</button>
+						`;
+						list.appendChild(li);
+					});
+					updateRemoveSelectedButton();
+				}
+				function setActiveCard(recipeId) {
+					document.querySelectorAll('.recipe-card').forEach(card => {
+						card.classList.toggle('active-recipe-card', card.dataset.recipeId === recipeId);
+					});
+					activeRecipeId = recipeId;
+					renderIngredientList(recipeId);
+				}
+
+				function toggleIngredientSelection(ingredientId, button) {
+					const listItem = button.closest('li');
+					if (selectedIngredients.has(ingredientId)) {
+						selectedIngredients.delete(ingredientId);
+						listItem.classList.remove('selected-ingredient');
+					} else {
+						selectedIngredients.add(ingredientId);
+						listItem.classList.add('selected-ingredient');
+					}
+					updateRemoveSelectedButton();
+				}
+				function updateRemoveSelectedButton() {
+					document.getElementById('removeSelectedButton').style.display =
+						selectedIngredients.size > 0 ? 'inline-block' : 'none';
+				}
+
+				async function removeSelectedIngredients() {
+					if (selectedIngredients.size === 0) return;
+
+					const shoppingListIds = [];
+					selectedIngredients.forEach(ingredientId => {
+						for (const recipeId in recipeIngredients) {
+							const ingredients = recipeIngredients[recipeId];
+							const ingredient = ingredients.find(ing => ing.id === ingredientId);
+							if (ingredient && ingredient.shoppingListId &&
+								ingredient.shoppingListId !== "00000000-0000-0000-0000-000000000000") {
+								shoppingListIds.push(ingredient.shoppingListId);
+							}
+						}
+					});
+
+					if (shoppingListIds.length === 0) {
+						console.warn("Keine gültigen Shopping List IDs gefunden");
+						return;
+					}
+
+					try {
+						const response = await fetch('/ShoppingList/RemoveIngredients', {
+							method: 'DELETE',
+							headers: {
+								'Content-Type': 'application/json',
+								'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
+								'Cache-Control': 'no-cache',
+								'Pragma': 'no-cache'
+							},
+							body: JSON.stringify(shoppingListIds)
+						});
+
+						if (!response.ok) {
+							throw new Error(`HTTP error! Status: ${response.status}`);
+						}
+
+						const result = await response.json();
+
+						if (result.success) {
+							window.location.reload();
+						} else {
+							console.error("Fehler beim Entfernen der Zutaten:", result.error);
+							alert("Beim Entfernen der Zutaten ist ein Fehler aufgetreten.");
+						}
+					} catch (err) {
+						console.error("Fehler beim Entfernen der Zutaten:", err);
+						alert("Beim Entfernen der Zutaten ist ein Fehler aufgetreten. Bitte versuchen Sie es später erneut.");
+					}
+				}
+
+
+				document.addEventListener('DOMContentLoaded', function() {
+					if (activeRecipeId) {
+						setActiveCard(activeRecipeId);
+					}
+
+					document.querySelectorAll('.recipe-card').forEach(card => {
+						card.addEventListener('click', function() {
+							setActiveCard(this.dataset.recipeId);
+						});
+					});
+				});
+
+						async function removeRecipe(recipeId) {
+			let confirmed = false;
+
+			if (window.Swal) {
+				const result = await Swal.fire({
+					title: 'Rezept entfernen?',
+					text: 'Möchten Sie dieses Rezept wirklich aus der Einkaufsliste entfernen?',
+					icon: 'warning',
+					showCancelButton: true,
+					confirmButtonText: 'Ja, entfernen',
+					cancelButtonText: 'Abbrechen',
+					confirmButtonColor: '#d33',
+					cancelButtonColor: '#3085d6'
+				});
+				confirmed = result.isConfirmed;
+			} else {
+				confirmed = confirm('Möchten Sie dieses Rezept wirklich aus der Einkaufsliste entfernen?');
 			}
-			const data = await response.json();
-			document.getElementById('recipeCount').textContent = data.count;
-		} catch (err) {
-			console.error("Fehler beim Aktualisieren der Rezeptanzahl:", err);
+
+			if (!confirmed) return;
+
+			try {
+				const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+				if (!tokenElement) {
+					console.error('Anti-forgery token not found');
+					alert('Fehler: Anti-Forgery Token nicht gefunden');
+					return;
+				}
+
+				const response = await fetch(`/ShoppingList/RemoveRecipeFromList/${recipeId}`, {
+					method: 'DELETE',
+					headers: {
+						'Content-Type': 'application/json',
+						'RequestVerificationToken': tokenElement.value
+					}
+				});
+
+				if (!response.ok) {
+					throw new Error(`HTTP error! Status: ${response.status}`);
+				}
+
+				const result = await response.json();
+
+				if (result.success) {
+					if (window.Swal) {
+						await Swal.fire({
+							title: 'Erfolgreich!',
+							text: 'Das Rezept wurde entfernt.',
+							icon: 'success',
+							timer: 1500,
+							showConfirmButton: false
+						});
+					} else {
+						alert('Das Rezept wurde erfolgreich entfernt.');
+					}
+					window.location.reload();
+				} else {
+					const errorMsg = result.error || 'Unbekannter Fehler';
+					console.error('Fehler beim Entfernen:', errorMsg);
+					if (window.Swal) {
+						await Swal.fire({
+							title: 'Fehler',
+							text: errorMsg,
+							icon: 'error'
+						});
+					} else {
+						alert('Fehler: ' + errorMsg);
+					}
+				}
+			} catch (err) {
+				console.error('Fehler beim Entfernen des Rezepts:', err);
+				if (window.Swal) {
+					await Swal.fire({
+						title: 'Fehler',
+						text: 'Beim Löschen ist ein Fehler aufgetreten.',
+						icon: 'error'
+					});
+				} else {
+					alert('Beim Löschen ist ein Fehler aufgetreten.');
+				}
+			}
 		}
-	}
-
-	const countUpdateInterval = setInterval(updateRecipeCount, 5000);
-
-
-	document.addEventListener('shopping-list-changed', function() {
-		updateRecipeCount();
-	});
-
-	window.addEventListener('beforeunload', function() {
-	clearInterval(countUpdateInterval);
-	});
-
-			document.getElementById('carouselLeft').onclick = function() {
-			document.getElementById('recipeCarousel').scrollBy({ left: -200, behavior: 'smooth' });
-		};
-		document.getElementById('carouselRight').onclick = function() {
-			document.getElementById('recipeCarousel').scrollBy({ left: 200, behavior: 'smooth' });
-		};
-</script>
+	</script>
 }
