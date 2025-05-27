@@ -305,8 +305,8 @@
             return View();
         }
 
-        // POST: /Recipe/{recipeId}/RemoveIngredient/{ingredientId}
-        [HttpPost("{recipeId}/RemoveIngredient/{ingredientId}")]
+        // DELETE: /Recipe/{recipeId}/RemoveIngredient/{ingredientId}
+        [HttpDelete("{recipeId}/RemoveIngredient/{ingredientId}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveIngredientConfirmed(Guid recipeId, Guid ingredientId)
         {
@@ -338,8 +338,8 @@
             return View();
         }
 
-        // POST: /Recipe/{recipeId}/RemoveInstruction/{instructionId}
-        [HttpPost("{recipeId}/RemoveInstruction/{instructionId}")]
+        // DELETE: /Recipe/{recipeId}/RemoveInstruction/{instructionId}
+        [HttpDelete("{recipeId}/RemoveInstruction/{instructionId}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveInstructionConfirmed(Guid recipeId, Guid instructionId)
         {
