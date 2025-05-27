@@ -123,6 +123,8 @@
 							finalQuantity = Math.round(adjustedQuantity);
 						}
 					}
+							// Convert small unit "msp" (pinch) to teaspoons (TL) for a better estimate
+							// 4 pinches = about 1 TL → show that as a note, rounded to 1 decimal
 					else if (specialUnits.smallUnits.includes(unitSymbol)) {
 						if (adjustedQuantity > 3) {
 							finalQuantity = Math.round(adjustedQuantity / 4 * 10) / 10;
