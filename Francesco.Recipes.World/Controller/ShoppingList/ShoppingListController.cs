@@ -4,6 +4,7 @@
     using Francesco.Recipes.World.Models;
     using Francesco.Recipes.World.Repositories.ShoppingList;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
 
     [Route("ShoppingList")]
     public class ShoppingListController : Controller
@@ -49,15 +50,28 @@
         }
 
         // GET: /ShoppingList/Details/{id}
-        [HttpGet("Details/{id}")]
-        public async Task<IActionResult> Details(Guid id)
+        [HttpGet("Details")]
+        public async Task<IActionResult> Details()
         {
-            var shoppingList = await _shoppingListRepository.GetByIdAsync(id);
             var recipeCount = await _shoppingListRepository.CountAllRecipeShoppinglistsAsync();
 
-            if (shoppingList == null)
+            var recipeIngredientToShoppingListMap = new Dictionary<Guid, Guid>();
+            var allEntries = await _context.RecipeIngredientsShoppingLists
+                .Where(risl => risl.RecipeIngredient != null)
+                .Select(risl => new
+                {
+                    RecipeIngredientId = risl.RecipeIngredient.Id,
+                    ShoppingListId = risl.Id,
+                })
+                .ToListAsync();
+
+            foreach (var entry in allEntries)
             {
-                return NotFound();
+                if (entry.RecipeIngredientId != Guid.Empty &&
+                    !recipeIngredientToShoppingListMap.ContainsKey(entry.RecipeIngredientId))
+                {
+                    recipeIngredientToShoppingListMap.Add(entry.RecipeIngredientId, entry.ShoppingListId);
+                }
             }
 
             var recipeInAnyShoppingList = (await _shoppingListRepository.GetAllShoppingListsAsync())
@@ -66,12 +80,75 @@
 
             var viewModel = new ShoppingListDetailsViewModel
             {
-                ShoppingList = shoppingList,
                 RecipeCount = recipeCount,
                 RecipesInAnyShoppingList = recipeInAnyShoppingList,
+                RecipeIngredientToShoppingListMap = recipeIngredientToShoppingListMap,
             };
 
             return View(viewModel);
+        }
+
+        [HttpDelete("RemoveIngredients")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveIngredients([FromBody] List<Guid> recipeIngredientShoppingListIds)
+        {
+            if (recipeIngredientShoppingListIds == null || !recipeIngredientShoppingListIds.Any())
+            {
+                return BadRequest("Keine Zutaten zum Entfernen angegeben.");
+            }
+
+            try
+            {
+                var affectedRecipeIds = await _context.RecipeIngredientsShoppingLists
+                    .Where(risl => recipeIngredientShoppingListIds.Contains(risl.Id))
+                    .Select(risl => risl.RecipeShoppingList.Recipe.Id)
+                    .Distinct()
+                    .ToListAsync();
+
+                await _shoppingListRepository.RemoveIngredientsFromShoppingListAsync(recipeIngredientShoppingListIds);
+
+                var remainingRecipeIds = await _context.RecipeShoppingLists
+                    .Select(rsl => rsl.Recipe.Id)
+                    .ToListAsync();
+
+                var removedRecipeIds = affectedRecipeIds
+                    .Where(id => !remainingRecipeIds.Contains(id))
+                    .ToList();
+
+                return Json(new { success = true, removedRecipeIds });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpDelete("RemoveRecipeFromList/{recipeId}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveRecipeFromList(Guid recipeId)
+        {
+            try
+            {
+                var recipeShoppingLists = await _context.RecipeShoppingLists
+                    .Where(rsl => rsl.Recipe.Id == recipeId)
+                    .ToListAsync();
+
+                if (!recipeShoppingLists.Any())
+                {
+                    return NotFound($"Kein Einkaufslisten-Eintrag für Rezept mit ID {recipeId} gefunden.");
+                }
+
+                foreach (var recipeShoppingList in recipeShoppingLists)
+                {
+                    await _shoppingListRepository.RemoveRecipeFromShoppingListAsync(recipeShoppingList.Id);
+                }
+
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, error = ex.Message });
+            }
         }
     }
 }
