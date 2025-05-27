@@ -497,7 +497,7 @@
             return View(recipe);
         }
 
-        // POST: /Recipe/{recipeId}/Delete
+        // DELETE: /Recipe/{recipeId}/Delete
         [HttpDelete("{recipeId}/Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid recipeId)
