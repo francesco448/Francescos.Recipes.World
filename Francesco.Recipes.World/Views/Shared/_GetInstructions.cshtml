@@ -19,11 +19,11 @@
 				<input type="file" name="InstructionViewModel.Instructions[@i].MediaFile" class="instruction-file" />
 				<textarea name="InstructionViewModel.Instructions[@i].Description" placeholder="Beschreibung" class="form-control">@Model.Instructions[i].Description</textarea>
 
-				<button type="button" class="btn-delete" onclick="removeInstruction('@Model.Instructions[i].Id', '@Model.RecipeId',)">🗑️</button>
+				<button type="button" class="btn-delete" onclick="Francesco.removeInstruction('@Model.Instructions[i].Id', '@Model.RecipeId')">🗑️</button>
 			</div>
 			<div class="instruction-actions">
-				<button type="button" class="btn-move-up" onclick="moveInstructionUp('@Model.Instructions[i].Id', '@Model.RecipeId')">⬆️</button>
-				<button type="button" class="btn-move-down" onclick="moveInstructionDown('@Model.Instructions[i].Id', '@Model.RecipeId')">⬇️</button>
+				<button type="button" class="btn-move-up" onclick="Francesco.moveInstructionUp('@Model.Instructions[i].Id', '@Model.RecipeId')">⬆️</button>
+				<button type="button" class="btn-move-down" onclick="Francesco.moveInstructionDown('@Model.Instructions[i].Id', '@Model.RecipeId')">⬇️</button>
 			</div>
 		</div>
 	}
@@ -32,7 +32,7 @@
 
 
 
-<button type="button" class="btn-add" onclick="addInstruction()">Schritte hinzufügen</button>
+<button type="button" class="btn-add" onclick="Francesco.addInstruction()">Schritte hinzufügen</button>
 
 
 
