@@ -49,7 +49,7 @@
             return Json(new { count });
         }
 
-        // GET: /ShoppingList/Details/{id}
+        // GET: /ShoppingList/Details
         [HttpGet("Details")]
         public async Task<IActionResult> Details()
         {
