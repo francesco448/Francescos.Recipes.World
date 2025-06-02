@@ -2,7 +2,6 @@
 {
     using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
-    using Francesco.Recipes.World.Models.BackendModels.Recipe;
     using Francesco.Recipes.World.Models.BackendModels.RecipeShoppingList;
     using Francesco.Recipes.World.Models.BackendModels.Shoppinglist;
     using Microsoft.EntityFrameworkCore;
@@ -182,26 +181,38 @@
                 throw new ArgumentNullException(nameof(recipeIngredientShoppingListIds));
             }
 
-            var affectedRecipeShoppingListIds = await _context.RecipeIngredientsShoppingLists
-                .Where(risl => recipeIngredientShoppingListIds.Contains(risl.Id))
-                .Select(risl => risl.RecipeShoppingList.Id)
-                .Distinct()
-                .ToListAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            foreach (var id in recipeIngredientShoppingListIds)
+            try
             {
-                var entry = await _context.RecipeIngredientsShoppingLists.FindAsync(id);
-                if (entry != null)
+                var affectedRecipeShoppingListIds = await _context.RecipeIngredientsShoppingLists
+                    .Where(risl => recipeIngredientShoppingListIds.Contains(risl.Id))
+                    .Select(risl => risl.RecipeShoppingList.Id)
+                    .Distinct()
+                    .ToListAsync();
+
+                foreach (var id in recipeIngredientShoppingListIds)
                 {
-                    _context.RecipeIngredientsShoppingLists.Remove(entry);
+                    var entry = await _context.RecipeIngredientsShoppingLists.FindAsync(id);
+                    if (entry != null)
+                    {
+                        _context.RecipeIngredientsShoppingLists.Remove(entry);
+                    }
                 }
+
+                await _context.SaveChangesAsync();
+
+                foreach (var recipeShoppingListId in affectedRecipeShoppingListIds)
+                {
+                    await RemoveRecipeIfEmptyAsync(recipeShoppingListId);
+                }
+
+                await transaction.CommitAsync();
             }
-
-            await _context.SaveChangesAsync();
-
-            foreach (var recipeShoppingListId in affectedRecipeShoppingListIds)
+            catch
             {
-                await RemoveRecipeIfEmptyAsync(recipeShoppingListId);
+                await transaction.RollbackAsync();
+                throw;
             }
         }
 
