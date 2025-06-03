@@ -6,7 +6,7 @@
 
 <h1>@Model.Name</h1>
 
-<div class="recipe-details">
+<div class="recipe-details" data-recipe-id="@Model.Id">
 	<div class="recipe-image">
 		@if (Model.MediaFiles.Any() && Model.MediaFiles.First().Data != null)
 		{
@@ -20,49 +20,189 @@
 	<div class="recipe-info">
 		<p><strong>Description:</strong> @Model.Description</p>
 		<p><strong>Difficulty:</strong> @Model.Difficulty</p>
-		<p><strong>Servings:</strong> @Model.Servings</p>
 		<p><strong>Preparation Time:</strong> @Model.PreparationTime</p>
 		<p><strong>Cooking Time:</strong> @Model.CookingTime</p>
 	</div>
-	<div class="recipe-ingredients">
-		<h3>Ingredients</h3>
-		<form id="ingredient-form">
-			<ul id="ingredient-list">
-				@foreach (var ingredient in Model.RecipeIngredients)
-				{
-					<li id="ingredient-@ingredient.Id">
-						<input type="checkbox" name="ingredientIds" value="@ingredient.Id" />
-						@ingredient.Ingredient.Name - @ingredient.Quantity @(ingredient.Unit != null ? ingredient.Unit.Symbol : string.Empty)
-					</li>
-				}
-			</ul>
-			<button type="button" class="btn btn-primary" onclick="addSelectedIngredientsToShoppingList()">Add Selected to Shopping List</button>
-		</form>
-	</div>
+
+	@await Html.PartialAsync("_AdjustableIngredientsPartial", Model)
+
+	@await Html.PartialAsync("_RecipeInstructionGridPartial", new Francesco.Recipes.World.Models.InstructionViewModel
+{
+	RecipeId = Model.Id,
+	Instructions = Model.Instructions.ToList()
+})
+
+	<form hx-post="@($"/{Model.Id}/Delete")"
+		  hx-confirm="Sind Sie sicher, dass Sie dieses Rezept löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+		  hx-redirect="/">
+		@Html.AntiForgeryToken()
+		<button type="submit" class="btn btn-danger">
+			<i class="bi bi-trash"></i> Rezept löschen
+		</button>
+	</form>
 </div>
 
 @section Scripts {
 	<script>
-		async function addSelectedIngredientsToShoppingList() {
-			var form = document.getElementById('ingredient-form');
-			var formData = new FormData(form);
-			var selectedIngredientIds = formData.getAll('ingredientIds');
+		document.addEventListener('DOMContentLoaded', function() {
+			const recipeId = '@Model.Id';
+			window.recipeId = recipeId;
 
-			var response = await fetch('/ShoppingList/CreateOrAddIngredients', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
+			const originalServings = @Model.Servings;
+
+			const specialUnits = {
+				discreteUnits: ["stk", "zehe", "blatt", "bund", "stange"],
+				smallUnits: ["msp"],
+				spoonUnits: {
+					"TL": { name: "teelöffel", toMl: 5 },
+					"EL": { name: "esslöffel", toMl: 15 }
+				}
+			};
+
+			const conversionTable = {
+				"knoblauch": {
+					unit: "zehe",
+					smallAmount: 0.5
 				},
-				body: JSON.stringify({ recipeId: '@Model.Id', ingredientIds: selectedIngredientIds })
+			};
+
+			const savedServings = localStorage.getItem(`recipe_${recipeId}_servings`);
+			if (savedServings) {
+				document.getElementById('servingsInput').value = savedServings;
+				adjustIngredientQuantities(parseInt(savedServings));
+			}
+
+			document.getElementById('decreaseServings').addEventListener('click', function () {
+				const input = document.getElementById('servingsInput');
+				const currentValue = parseInt(input.value);
+				if (currentValue > 1) {
+					input.value = currentValue - 1;
+					adjustIngredientQuantities(currentValue - 1);
+					saveServingsToLocalStorage(currentValue - 1);
+				}
 			});
 
-			if (response.ok) {
-				var result = await response.json();
-				localStorage.setItem('shoppingListId', result.shoppingListId);
-				alert('Shopping list updated.');
-			} else {
-				alert('Failed to update shopping list.');
+			document.getElementById('increaseServings').addEventListener('click', function () {
+				const input = document.getElementById('servingsInput');
+				const currentValue = parseInt(input.value);
+				input.value = currentValue + 1;
+				adjustIngredientQuantities(currentValue + 1);
+				saveServingsToLocalStorage(currentValue + 1);
+			});
+
+			document.getElementById('servingsInput').addEventListener('change', function () {
+				const newServings = parseInt(this.value);
+				if (newServings < 1) {
+					this.value = 1;
+					adjustIngredientQuantities(1);
+					saveServingsToLocalStorage(1);
+				} else {
+					adjustIngredientQuantities(newServings);
+					saveServingsToLocalStorage(newServings);
+				}
+			});
+
+			function adjustIngredientQuantities(newServings) {
+				const ingredients = document.querySelectorAll('#adjustable-ingredient-list li');
+
+				ingredients.forEach(ingredient => {
+					const originalQuantity = parseFloat(ingredient.getAttribute('data-original-quantity'));
+					const ingredientName = ingredient.getAttribute('data-ingredient-name').toLowerCase();
+					const unitSymbol = ingredient.getAttribute('data-unit');
+					const unitName = ingredient.getAttribute('data-unit-name');
+
+					let adjustedQuantity = (originalQuantity / originalServings) * newServings;
+					let finalQuantity = adjustedQuantity;
+					let note = "";
+
+					if (specialUnits.discreteUnits.includes(unitSymbol)) {
+						if (adjustedQuantity < 1 && adjustedQuantity > 0) {
+							finalQuantity = Math.ceil(adjustedQuantity);
+							note = " (ggf. eine kleine/halbe nehmen)";
+						} else {
+							finalQuantity = Math.round(adjustedQuantity);
+						}
+					}
+							// Convert small unit "msp" (pinch) to teaspoons (TL) for a better estimate
+							// 4 pinches = about 1 TL → show that as a note, rounded to 1 decimal
+					else if (specialUnits.smallUnits.includes(unitSymbol)) {
+						if (adjustedQuantity > 3) {
+							finalQuantity = Math.round(adjustedQuantity / 4 * 10) / 10;
+							note = ` (ca. ${finalQuantity} TL)`;
+							finalQuantity = adjustedQuantity;
+						} else {
+							finalQuantity = Math.round(adjustedQuantity);
+						}
+					}
+					else if (Object.keys(specialUnits.spoonUnits).includes(unitSymbol)) {
+						if (adjustedQuantity > 4 && unitSymbol === "TL") {
+							const esslöffel = Math.round(adjustedQuantity / 3 * 10) / 10;
+							note = ` (ca. ${esslöffel} EL)`;
+						}
+						finalQuantity = Math.round(adjustedQuantity * 2) / 2;
+					}
+
+					if (ingredientName.includes("knoblauch") && unitSymbol === "zehe" && adjustedQuantity < 1) {
+						finalQuantity = 1;
+						note = " (kleine Zehe)";
+					}
+
+					const formattedQuantity = formatQuantity(finalQuantity);
+					ingredient.querySelector('.ingredient-quantity').textContent = formattedQuantity;
+
+					const noteElement = ingredient.querySelector('.ingredient-note');
+					if (noteElement) {
+						noteElement.textContent = note;
+					}
+				});
 			}
-		}
+
+			function saveServingsToLocalStorage(servings) {
+				localStorage.setItem(`recipe_${recipeId}_servings`, servings.toString());
+			}
+
+			function formatQuantity(quantity) {
+				if (Number.isInteger(quantity)) {
+					return quantity;
+				}
+
+				if (quantity === 0.5 || quantity === 0.25 || quantity === 0.75) {
+					return quantity;
+				}
+
+				return Math.round(quantity * 10) / 10;
+			}
+
+
+			window.addSelectedIngredientsToShoppingList = function(recipeIdParam) {
+				const idToUse = recipeIdParam || recipeId;
+
+				var form = document.getElementById('ingredient-form');
+				var formData = new FormData(form);
+				var selectedIngredientIds = formData.getAll('ingredientIds');
+
+				fetch('/ShoppingList/CreateOrAddIngredients', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+					},
+					body: JSON.stringify({ recipeId: idToUse, ingredientIds: selectedIngredientIds })
+				})
+				.then(response => {
+					if (response.ok) {
+						return response.json();
+					}
+					throw new Error('Failed to update shopping list');
+				})
+				.then(result => {
+					localStorage.setItem('shoppingListId', result.shoppingListId);
+					alert('Einkaufsliste aktualisiert.');
+				})
+				.catch(error => {
+					alert('Fehler beim Aktualisieren der Einkaufsliste.');
+				});
+			};
+		});
 	</script>
 }

@@ -189,3 +189,25 @@ async function addIngredient() {
     }
 }
 
+
+        async function addSelectedIngredientsToShoppingList() {
+            var form = document.getElementById('ingredient-form');
+            var formData = new FormData(form);
+            var selectedIngredientIds = formData.getAll('ingredientIds');
+
+            var response = await fetch('/ShoppingList/CreateOrAddIngredients', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ recipeId: '@Model.Id', ingredientIds: selectedIngredientIds })
+            });
+
+            if (response.ok) {
+                var result = await response.json();
+                localStorage.setItem('shoppingListId', result.shoppingListId);
+                alert('Shopping list updated.');
+            } else {
+                alert('Failed to update shopping list.');
+            }
+}
