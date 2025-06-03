@@ -34,7 +34,7 @@ public class Recipe : ITimeStampedEntity
 
     public virtual ICollection<MediaFile> MediaFiles { get; set; } = new List<MediaFile>();
 
-    public virtual Favorit Favorit { get; set; } = new ();
+    public virtual Favorit Favorite { get; set; } = new ();
 
     public virtual Category Category { get; set; } = new ();
 }
