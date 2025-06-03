@@ -17,7 +17,7 @@
         {
             return await _context.Recipes
                   .Where(r => r.IsFavorite)
-                  .Include(r => r.Favorit)
+                  .Include(r => r.Favorite)
                   .Include(r => r.MediaFiles)
                   .ToListAsync();
         }
@@ -31,28 +31,31 @@
         public async Task AddFavoriteAsync(Guid recipeId)
         {
             var recipe = await _context.Recipes
-                .Include(r => r.Favorit)
+                .Include(r => r.Favorite)
                 .FirstOrDefaultAsync(r => r.Id == recipeId);
 
-            if (recipe != null && !recipe.IsFavorite)
+            if (recipe == null)
             {
-                recipe.IsFavorite = true;
-
-                if (recipe.Favorit == null || recipe.Favorit.Id == Guid.Empty)
-                {
-                    recipe.Favorit = new Models.BackendModels.Favorit.Favorit
-                    {
-                        Id = Guid.NewGuid(),
-                        CreatedAt = DateTime.Now,
-                    };
-                }
-                else
-                {
-                    recipe.Favorit.CreatedAt = DateTime.Now;
-                }
-
-                await _context.SaveChangesAsync();
+                throw new InvalidOperationException("Recipe not found.");
             }
+
+            if (recipe.IsFavorite)
+            {
+                throw new InvalidOperationException("Recipe is already a favorite.");
+            }
+
+            recipe.IsFavorite = true;
+
+            if (recipe.Favorite == null || recipe.Favorite.Id == Guid.Empty)
+            {
+                recipe.Favorite = new Models.BackendModels.Favorit.Favorit
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAt = DateTime.Now,
+                };
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task RemoveFavoriteAsync(Guid recipeId)
