@@ -1,5 +1,6 @@
 ﻿namespace Francesco.Recipes.World.Repositories.MediaFile
 {
+    using Francesco.Recipes.World.Constants;
     using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Models.BackendModels.MediaFile;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
@@ -83,7 +84,7 @@
             {
                 var recipe = await _recipeRepository.GetRecipeAsync(recipeId);
 
-                var isImage = mediaFile.ContentType.StartsWith("image/");
+                var isImage = mediaFile.ContentType.StartsWith(ContentType.Image);
                 var isVideo = mediaFile.ContentType.StartsWith("video/");
 
                 if (!isImage && !isVideo)
@@ -93,7 +94,7 @@
 
                 if (isImage)
                 {
-                    await RemoveExistingMediaAsync(recipe, "image/");
+                    await RemoveExistingMediaAsync(recipe, ContentType.Image);
                 }
                 else
                 {

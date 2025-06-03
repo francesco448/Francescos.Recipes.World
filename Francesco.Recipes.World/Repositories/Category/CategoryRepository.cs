@@ -47,6 +47,7 @@
             return await _context.Categories
                 .Include(c => c.Recipes)
                     .ThenInclude(r => r.MediaFiles)
+                    .AsSplitQuery()
                 .ToListAsync();
         }
     }
