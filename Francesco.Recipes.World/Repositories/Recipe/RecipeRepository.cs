@@ -1,5 +1,7 @@
 ﻿namespace Francesco.Recipes.World.Repositories.Recipe
 {
+    using System.Linq.Expressions;
+    using Francesco.Recipes.World.Constants;
     using Francesco.Recipes.World.Data;
     using Francesco.Recipes.World.Models;
     using Francesco.Recipes.World.Models.BackendModels.Category;
@@ -158,52 +160,17 @@
                     return await _context.Recipes
                         .OrderByDescending(r => r.CreatedAt)
                         .Take(20)
-                        .Select(r => new SearchViewModel
-                        {
-                            Id = r.Id,
-                            Name = r.Name,
-                            Description = r.Description,
-                            IsFavorite = r.IsFavorite,
-                            ImageData = r.MediaFiles
-                                .Where(m => m.MimeType != null && m.MimeType.StartsWith("image/"))
-                                .Select(m => m.Data)
-                                .FirstOrDefault(),
-                            MimeType = r.MediaFiles
-                                .Where(m => m.MimeType != null && m.MimeType.StartsWith("image/"))
-                                .Select(m => m.MimeType)
-                                .FirstOrDefault(),
-                            Ingredients = r.RecipeIngredients.Select(ri => ri.Ingredient.Name).ToList(),
-                            TotalTime = r.PreparationTime.Add(r.CookingTime),
-                        })
+                        .Select(SearchViewModelSelector())
                         .ToListAsync();
                 }
 
                 var normalizedSearchTerm = searchTerm.ToLower();
 
-                return await _context.Recipes
-                    .Where(r => EF.Functions.Like(r.Name.ToLower(), $"%{normalizedSearchTerm}%") ||
-                                (r.Description != null && EF.Functions.Like(r.Description.ToLower(), $"%{normalizedSearchTerm}%")) ||
-                                r.RecipeIngredients.Any(ri => EF.Functions.Like(ri.Ingredient.Name.ToLower(), $"%{normalizedSearchTerm}%")))
+                return await ApplyRecipeSearchFilter(_context.Recipes, normalizedSearchTerm)
                     .OrderByDescending(r => r.CreatedAt)
                     .Take(100)
-                    .Select(r => new SearchViewModel
-                    {
-                        Id = r.Id,
-                        Name = r.Name,
-                        Description = r.Description,
-                        IsFavorite = r.IsFavorite,
-                        ImageData = r.MediaFiles
-                            .Where(m => m.MimeType != null && m.MimeType.StartsWith("image/"))
-                            .Select(m => m.Data)
-                            .FirstOrDefault(),
-                        MimeType = r.MediaFiles
-                            .Where(m => m.MimeType != null && m.MimeType.StartsWith("image/"))
-                            .Select(m => m.MimeType)
-                            .FirstOrDefault(),
-                        Ingredients = r.RecipeIngredients.Select(ri => ri.Ingredient.Name).ToList(),
-                        TotalTime = r.PreparationTime.Add(r.CookingTime),
-                    })
-                    .ToListAsync();
+                    .Select(SearchViewModelSelector())
+                   .ToListAsync();
             }
             catch (Exception ex)
             {
@@ -229,6 +196,35 @@
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
                 .ToListAsync();
+        }
+
+        private static Expression<Func<Recipe, SearchViewModel>> SearchViewModelSelector()
+        {
+            return r => new SearchViewModel
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Description = r.Description,
+                IsFavorite = r.IsFavorite,
+                ImageData = r.MediaFiles
+                    .Where(m => m.MimeType != null && m.MimeType.StartsWith(ContentType.Image))
+                    .Select(m => m.Data)
+                    .FirstOrDefault(),
+                MimeType = r.MediaFiles
+                    .Where(m => m.MimeType != null && m.MimeType.StartsWith(ContentType.Image))
+                    .Select(m => m.MimeType)
+                    .FirstOrDefault(),
+                Ingredients = r.RecipeIngredients.Select(ri => ri.Ingredient.Name).ToList(),
+                TotalTime = r.PreparationTime.Add(r.CookingTime),
+            };
+        }
+
+        private static IQueryable<Recipe> ApplyRecipeSearchFilter(IQueryable<Recipe> query, string normalizedSearchTerm)
+        {
+            return query.Where(r =>
+                EF.Functions.Like(r.Name.ToLower(), $"%{normalizedSearchTerm}%") ||
+                (r.Description != null && EF.Functions.Like(r.Description.ToLower(), $"%{normalizedSearchTerm}%")) ||
+                r.RecipeIngredients.Any(ri => EF.Functions.Like(ri.Ingredient.Name.ToLower(), $"%{normalizedSearchTerm}%")));
         }
 
         public async Task<bool> DeleteRecipeAsync(Guid recipeId)
