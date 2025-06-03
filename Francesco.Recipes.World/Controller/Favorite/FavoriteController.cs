@@ -1,5 +1,6 @@
 ﻿namespace Francesco.Recipes.World.Controller.Favorite
 {
+    using Francesco.Recipes.World.Constants;
     using Francesco.Recipes.World.Models;
     using Francesco.Recipes.World.Repositories.Favorit;
     using Microsoft.AspNetCore.Mvc;
@@ -14,13 +15,13 @@
             _favoriteRepository = favoriteRepository;
         }
 
-        public async Task<IActionResult> Index(string sortOrder = "newest")
+        public async Task<IActionResult> Index(string sortOrder = SortOrders.Newest)
         {
             var favoriteRecipes = await _favoriteRepository.GetFavoriteRecipesAsync();
 
-            var sortedRecipes = sortOrder == "oldest"
-                ? favoriteRecipes.OrderBy(r => r.Favorit.CreatedAt)
-                : favoriteRecipes.OrderByDescending(r => r.Favorit.CreatedAt);
+            var sortedRecipes = sortOrder == SortOrders.Oldest
+                ? favoriteRecipes.OrderBy(r => r.Favorite.CreatedAt)
+                : favoriteRecipes.OrderByDescending(r => r.Favorite.CreatedAt);
 
             var viewModel = new FavoriteViewModel
             {
