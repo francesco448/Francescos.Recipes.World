@@ -49,7 +49,6 @@
   <Folder Include="Services\Category\" />
   <Folder Include="Services\MediaFile\" />
   <Folder Include="Services\Ingredient\" />
-  <Folder Include="Services\Recipe\" />
 </ItemGroup>
 
 </Project>

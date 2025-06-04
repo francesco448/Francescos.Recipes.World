@@ -1,5 +1,6 @@
 ﻿namespace Francesco.Recipes.World.Repositories.Recipe
 {
+    using Francesco.Recipes.World.Models;
     using Francesco.Recipes.World.Models.BackendModels.Category;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
 
@@ -17,6 +18,7 @@
 
         Task<Recipe> CreateRecipeForCategoryAsync(Category category, string name, string description, Difficulty difficulty, int servings, TimeSpan preparationTime, TimeSpan cookingTime);
 
-        Task<IEnumerable<Recipe>> SearchInRecipesAndIngredients(string searchterm);
+        Task<bool> DeleteRecipeAsync(Guid recipeId);
+        Task<IEnumerable<SearchViewModel>> SearchInRecipesAndIngredients(string searchTerm);
     }
 }

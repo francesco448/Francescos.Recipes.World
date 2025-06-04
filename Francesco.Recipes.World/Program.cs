@@ -20,7 +20,8 @@ var connectionString = builder.Configuration.GetConnectionString("FrancescosReci
                        ?? throw new InvalidOperationException("Connection string 'FrancescosRecipesWorldDbContextConnection' not found.");
 
 services.AddDbContext<FrancescosRecipesWorldDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sqlOptions =>
+        sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

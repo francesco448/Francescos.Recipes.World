@@ -1,6 +1,9 @@
 ﻿namespace Francesco.Recipes.World.Repositories.Recipe
 {
+    using System.Linq.Expressions;
+    using Francesco.Recipes.World.Constants;
     using Francesco.Recipes.World.Data;
+    using Francesco.Recipes.World.Models;
     using Francesco.Recipes.World.Models.BackendModels.Category;
     using Francesco.Recipes.World.Models.BackendModels.Ingredient;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
@@ -38,6 +41,7 @@
              .ThenInclude(ri => ri.Unit)
          .Include(r => r.MediaFiles)
          .Include(r => r.Instructions)
+            .ThenInclude(i => i.MediaFiles)
          .FirstOrDefaultAsync(r => r.Id == recipeId);
         }
 
@@ -147,21 +151,32 @@
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Recipe>> SearchInRecipesAndIngredients(string searchTerm)
+        public async Task<IEnumerable<SearchViewModel>> SearchInRecipesAndIngredients(string searchTerm)
         {
-            var queryable = _context.Recipes
-                .Include(r => r.RecipeIngredients)
-                    .ThenInclude(ri => ri.Ingredient)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(searchTerm))
+            try
             {
-                searchTerm = searchTerm.ToLower();
-                queryable = queryable.Where(r => r.Name.ToLower().Contains(searchTerm) ||
-                                                 r.RecipeIngredients.Any(ri => ri.Ingredient.Name.ToLower().Contains(searchTerm)));
-            }
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    return await _context.Recipes
+                        .OrderByDescending(r => r.CreatedAt)
+                        .Take(20)
+                        .Select(SearchViewModelSelector())
+                        .ToListAsync();
+                }
 
-            return await queryable.ToListAsync();
+                var normalizedSearchTerm = searchTerm.ToLower();
+
+                return await ApplyRecipeSearchFilter(_context.Recipes, normalizedSearchTerm)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Take(100)
+                    .Select(SearchViewModelSelector())
+                   .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in SearchInRecipesAndIngredientsOptimized: {ex.Message}");
+                return new List<SearchViewModel>();
+            }
         }
 
         public async Task<IReadOnlyCollection<Recipe>> GetRecipesByDifficultyAsync(Difficulty? difficulty)
@@ -181,6 +196,78 @@
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
                 .ToListAsync();
+        }
+
+        private static Expression<Func<Recipe, SearchViewModel>> SearchViewModelSelector()
+        {
+            return r => new SearchViewModel
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Description = r.Description,
+                IsFavorite = r.IsFavorite,
+                ImageData = r.MediaFiles
+                    .Where(m => m.MimeType != null && m.MimeType.StartsWith(ContentType.Image))
+                    .Select(m => m.Data)
+                    .FirstOrDefault(),
+                MimeType = r.MediaFiles
+                    .Where(m => m.MimeType != null && m.MimeType.StartsWith(ContentType.Image))
+                    .Select(m => m.MimeType)
+                    .FirstOrDefault(),
+                Ingredients = r.RecipeIngredients.Select(ri => ri.Ingredient.Name).ToList(),
+                TotalTime = r.PreparationTime.Add(r.CookingTime),
+            };
+        }
+
+        private static IQueryable<Recipe> ApplyRecipeSearchFilter(IQueryable<Recipe> query, string normalizedSearchTerm)
+        {
+            return query.Where(r =>
+                EF.Functions.Like(r.Name.ToLower(), $"%{normalizedSearchTerm}%") ||
+                (r.Description != null && EF.Functions.Like(r.Description.ToLower(), $"%{normalizedSearchTerm}%")) ||
+                r.RecipeIngredients.Any(ri => EF.Functions.Like(ri.Ingredient.Name.ToLower(), $"%{normalizedSearchTerm}%")));
+        }
+
+        public async Task<bool> DeleteRecipeAsync(Guid recipeId)
+        {
+            var recipe = await GetRecipeByIdAsync(recipeId);
+
+            if (recipe == null)
+            {
+                return false;
+            }
+
+            if (recipe.RecipeIngredients != null && recipe.RecipeIngredients.Any())
+            {
+                _context.RecipeIngredients.RemoveRange(recipe.RecipeIngredients);
+            }
+
+            if (recipe.Instructions != null && recipe.Instructions.Any())
+            {
+                foreach (var instruction in recipe.Instructions)
+                {
+                    if (instruction.MediaFiles != null && instruction.MediaFiles.Any())
+                    {
+                        _context.MediaFiles.RemoveRange(instruction.MediaFiles);
+                    }
+                }
+
+                _context.Instructions.RemoveRange(recipe.Instructions);
+            }
+
+            if (recipe.MediaFiles != null && recipe.MediaFiles.Any())
+            {
+                _context.MediaFiles.RemoveRange(recipe.MediaFiles);
+            }
+
+            if (recipe.Favorit != null && recipe.Favorit.Id != Guid.Empty)
+            {
+                _context.Remove(recipe.Favorit);
+            }
+
+            _context.Recipes.Remove(recipe);
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
