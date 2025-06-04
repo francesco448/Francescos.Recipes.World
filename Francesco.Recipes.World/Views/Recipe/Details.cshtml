@@ -181,28 +181,26 @@
 				var formData = new FormData(form);
 				var selectedIngredientIds = formData.getAll('ingredientIds');
 
-				fetch('/ShoppingList/CreateOrAddIngredients', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-					},
-					body: JSON.stringify({ recipeId: idToUse, ingredientIds: selectedIngredientIds })
-				})
-				.then(response => {
-					if (response.ok) {
-						return response.json();
-					}
-					throw new Error('Failed to update shopping list');
-				})
-				.then(result => {
-					localStorage.setItem('shoppingListId', result.shoppingListId);
-					alert('Einkaufsliste aktualisiert.');
-				})
-				.catch(error => {
-					alert('Fehler beim Aktualisieren der Einkaufsliste.');
-				});
-			};
-		});
+
+			var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+			var response = await fetch('/ShoppingList/CreateOrAddIngredients', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'RequestVerificationToken': token 
+				},
+				body: JSON.stringify({ recipeId: '@Model.Id', ingredientIds: selectedIngredientIds })
+			});
+
+			if (response.ok) {
+				var result = await response.json();
+				localStorage.setItem('shoppingListId', result.shoppingListId);
+				alert('Zutaten wurden zur Einkaufsliste hinzugefügt.');
+			} else {
+				alert('Fehler beim Hinzufügen zur Einkaufsliste.');
+			}
+		}
+
 	</script>
 }

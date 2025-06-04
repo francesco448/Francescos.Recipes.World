@@ -184,3 +184,53 @@ textarea.form-control {
     }
 
 
+}
+
+.recipe-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.active-recipe-card {
+    border-bottom: 4px solid #000 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.selected-ingredient .btn-outline-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+}
+
+#removeSelectedButton {
+    display: none;
+    margin-top: 15px;
+    background-color: #FFA500;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+    #removeSelectedButton:hover {
+        background-color: #FF8C00;
+    }
+
+.ingredient-counter {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
