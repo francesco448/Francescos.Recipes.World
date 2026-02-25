@@ -1,6 +1,6 @@
 # Project Description
 
-This project is a collection of recipes from various cuisines around the world. It allows users to explore, add, and share cooking recipes.
+This project is a collection of recipes from various cuisines around the world. It allows users to explore and add cooking recipes. The application features a structured database with recipes, ingredients, units, categories, and preparation instructions.
 
 # Tech Stack
 
