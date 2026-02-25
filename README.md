@@ -112,3 +112,38 @@ Durch dieses Projekt konnte ich mein Verständnis für folgende Themen vertiefen
 - Strukturierte und wartbare Backend-Entwicklung
 
 Das Projekt hat mir gezeigt, wie wichtig saubere Architektur und klare Code-Strukturen für langfristig wartbare Anwendungen sind.
+
+---
+
+## Projektstatus
+
+**Status:** In Weiterentwicklung (Work in Progress)
+
+Die Kernfunktionalitäten der Anwendung sind vollständig implementiert.  
+Das Backend ist stabil und ermöglicht die vollständige Verwaltung (CRUD) von Rezepten, Zutaten, Einheiten und Kategorien.  
+
+Die Applikation ist funktionsfähig und das Datenmodell ist strukturiert umgesetzt.  
+Aktuell liegt der Fokus auf der weiteren Verbesserung der Benutzeroberfläche und der Optimierung der User Experience.
+
+---
+
+## Geplante Verbesserungen (Roadmap)
+
+- [ ] Überarbeitung des UI-Designs (modernes, konsistentes Styling)
+- [ ] Verbesserung der Responsivität für mobile Endgeräte
+- [ ] Optimierung der Formular-Validierung im Frontend
+- [ ] Benutzerfreundlichere Fehlermeldungen
+- [ ] Erweiterte Such- und Filterfunktionen
+- [ ] Einführung von Benutzer-Authentifizierung (optional)
+
+---
+
+## Technische Stabilität
+
+- Backend-Logik vollständig implementiert
+- Relationale Datenbankstruktur korrekt modelliert
+- Entity Framework Core Migrationen funktionsfähig
+- AJAX-basierte Interaktionen integriert
+- Saubere Trennung zwischen Präsentations- und Logikschicht
+
+---
