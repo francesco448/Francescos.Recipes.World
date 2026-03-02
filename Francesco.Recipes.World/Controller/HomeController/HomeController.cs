@@ -2,7 +2,6 @@
 {
     using Francesco.Recipes.World.Repositories.Category;
     using Francesco.Recipes.World.Repositories.Recipe;
-    using Francesco.Recipes.World.Views.Category;
     using Microsoft.AspNetCore.Mvc;
 
     public class HomeController : Controller
@@ -19,15 +18,8 @@
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryRepository.GetAllCategoriesWithRecipesAsync();
-
-            var viewModel = categories.Select(category => new CategoryRecipesViewModel
-            {
-                Category = category,
-                Recipes = category.Recipes,
-            });
-
-            return View("Index", viewModel);
+            var categoriesWithRecipes = await _categoryRepository.GetAllCategoriesWithRecipesViewModelAsync();
+            return View(categoriesWithRecipes);
         }
 
         [HttpGet("/Home/Search")]

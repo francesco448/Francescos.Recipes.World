@@ -5,7 +5,6 @@
     using Francesco.Recipes.World.Repositories.Favorit;
     using Microsoft.AspNetCore.Mvc;
 
-    [Route("Favorite")]
     public class FavoriteController : Controller
     {
         private readonly IFavoriteRepository _favoriteRepository;

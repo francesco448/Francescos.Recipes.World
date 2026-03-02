@@ -6,7 +6,7 @@ using Francesco.Recipes.World.Models.BackendModels.Instruction;
 using Francesco.Recipes.World.Models.BackendModels.MediaFile;
 using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient;
 
-public class Recipe : ITimeStampedEntity
+public class Recipe : ITimeStampedEntity, IFavoritable
 {
     public Guid Id { get; set; }
 

@@ -12,7 +12,6 @@
     using Francesco.Recipes.World.Repositories.MediaFile;
     using Francesco.Recipes.World.Repositories.Recipe;
     using Francesco.Recipes.World.Repositories.Unit;
-    using Francesco.Recipes.World.Views.Category;
     using Francesco.Recipes.World.Views.Recipe;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Rendering;
@@ -91,15 +90,8 @@
         [HttpGet("CategoryRecipes")]
         public async Task<IActionResult> CategoryRecipes()
         {
-            var categories = await _categoryRepository.GetAllCategoriesWithRecipesAsync();
-
-            var viewModel = categories.Select(c => new CategoryRecipesViewModel
-            {
-                Category = c,
-                Recipes = c.Recipes,
-            }).ToList();
-
-            return View(viewModel);
+            var categoryViewModels = await _categoryRepository.GetAllCategoriesWithRecipesAsync();
+            return View(categoryViewModels);
         }
 
         // POST: /Recipe/{recipeId}/AddOrCreateIngredient
@@ -424,34 +416,35 @@
             return View(favoriteRecipes);
         }
 
-        // POST: /Recipe/AddFavorite
         [HttpPost("AddFavorite")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFavorite(Guid recipeId)
         {
             await _favoriteRepository.AddFavoriteAsync(recipeId);
-            var recipe = await _recipeRepository.GetRecipeByIdAsync(recipeId);
-            if (recipe == null)
-            {
-                return NotFound("Recipe not found.");
-            }
 
-            return PartialView("_FavoriteButton", recipe);
+            // We only need to know the Id and IsFavorite status
+            var viewModel = new FavoritButtonViewModel
+            {
+                Id = recipeId,
+                IsFavorite = true,
+            };
+
+            return PartialView("_FavoriteButton", viewModel);
         }
 
-        // POST: /Recipe/RemoveFavorite
         [HttpPost("RemoveFavorite")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveFavorite(Guid recipeId)
         {
             await _favoriteRepository.RemoveFavoriteAsync(recipeId);
-            var recipe = await _recipeRepository.GetRecipeByIdAsync(recipeId);
-            if (recipe == null)
-            {
-                return NotFound("Recipe not found.");
-            }
 
-            return PartialView("_FavoriteButton", recipe);
+            var viewModel = new FavoritButtonViewModel
+            {
+                Id = recipeId,
+                IsFavorite = false,
+            };
+
+            return PartialView("_FavoriteButton", viewModel);
         }
 
         // GET: /Recipe/{recipeId}/GetIngredients
@@ -497,7 +490,6 @@
             return View(recipe);
         }
 
-        // DELETE: /Recipe/{recipeId}/Delete
         [HttpDelete("{recipeId}/Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid recipeId)
@@ -506,12 +498,24 @@
 
             if (deleted)
             {
-                TempData["SuccessMessage"] = "Rezept wurde erfolgreich gelöscht.";
+                if (Request.Headers.ContainsKey("HX-Request"))
+                {
+                    Response.Headers["HX-Redirect"] = Url.Action("Index", "Home");
+                    return Ok();
+                }
+
                 return RedirectToAction("Index", "Home");
             }
             else
             {
                 TempData["ErrorMessage"] = "Rezept nicht gefunden oder konnte nicht gelöscht werden.";
+
+                if (Request.Headers.ContainsKey("HX-Request"))
+                {
+                    Response.Headers["HX-Redirect"] = Url.Action("Details", new { recipeId });
+                    return Ok();
+                }
+
                 return RedirectToAction("Details", new { recipeId });
             }
         }
