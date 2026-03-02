@@ -1,0 +1,25 @@
+﻿namespace Francesco.Recipes.World.Repositories.Recipe
+{
+    using Francesco.Recipes.World.Models;
+    using Francesco.Recipes.World.Models.BackendModels.Category;
+    using Francesco.Recipes.World.Models.BackendModels.Recipe;
+
+    public interface IRecipeRepository
+    {
+        Task<Recipe> GetRecipeAsync(Guid recipeId);
+
+        Task<Recipe?> GetRecipeByIdAsync(Guid id);
+
+        Task CreateRecipeIngredientAsync(Guid recipeId, string ingredientName, int quantity, Guid unitId);
+
+        Task RemoveIngredientFromRecipeAsync(Guid recipeId, Guid ingredientId);
+
+        Task<IReadOnlyCollection<Recipe>> GetRecipesByDifficultyAsync(Difficulty? difficulty);
+
+        Task<Recipe> CreateRecipeForCategoryAsync(Category category, string name, string description, Difficulty difficulty, int servings, TimeSpan preparationTime, TimeSpan cookingTime);
+
+        Task<bool> DeleteRecipeAsync(Guid recipeId);
+
+        Task<IEnumerable<SearchViewModel>> SearchInRecipesAndIngredients(string searchTerm);
+    }
+}

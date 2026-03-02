@@ -126,7 +126,7 @@ dotnet_diagnostic.SA1601.severity = none
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.DocumentationRules.severity = none
 
 # SA1516: Elements should be separated by blank line
-dotnet_diagnostic.SA1516.severity = none
+dotnet_diagnostic.SA1516.severity = error
 
 # SA1649: File name should match first type name
 dotnet_diagnostic.SA1649.severity = none
@@ -142,3 +142,11 @@ dotnet_diagnostic.SA1309.severity = none
 
 # SA1309: Make sure class members are allowed to call without "this" prefix
 dotnet_diagnostic.SA1101.severity = none
+# SA1118: parameter spans multiple lines
+dotnet_diagnostic.SA1118.severity = none  
+# SA1011: closing square bracket spacing
+dotnet_diagnostic.SA1011.severity = none  
+# SA1517: no blank lines at start of file
+dotnet_diagnostic.SA1517.severity = none 
+# SA1200: using directive should appear within a namespace
+dotnet_diagnostic.SA1200.severity = none 

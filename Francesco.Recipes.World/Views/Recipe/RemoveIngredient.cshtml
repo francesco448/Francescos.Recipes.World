@@ -1,0 +1,20 @@
+﻿@model Francesco.Recipes.World.Models.BackendModels.Recipe.Recipe
+
+@{
+    ViewData["Title"] = "Remove Ingredient";
+}
+
+<h1>Remove Ingredient</h1>
+
+<h3>Are you sure you want to remove the ingredient '@ViewBag.IngredientName' from this recipe?</h3>
+
+<form asp-action="RemoveIngredientConfirmed" asp-route-categoryId="@ViewBag.CategoryId" asp-route-recipeId="@ViewBag.RecipeId" asp-route-ingredientId="@ViewBag.IngredientId" method="post">
+    <input type="hidden" name="categoryId" value="@ViewBag.CategoryId" />
+    <input type="hidden" name="recipeId" value="@ViewBag.RecipeId" />
+    <input type="hidden" name="ingredientId" value="@ViewBag.IngredientId" />
+    <div class="form-group">
+        <input type="submit" value="Remove" class="btn btn-danger" />
+        <a asp-action="Details" asp-route-id="@ViewBag.RecipeId" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+

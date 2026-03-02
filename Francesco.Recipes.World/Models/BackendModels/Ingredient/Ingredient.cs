@@ -1,11 +1,16 @@
 ﻿namespace Francesco.Recipes.World.Models.BackendModels.Ingredient
 {
-    using Francesco.Recipes.World.Models.BackendModels.Unit;
+    using Francesco.Recipes.World.Models.BackendModels.IngredientShoppingList;
+    using Francesco.Recipes.World.Models.BackendModels.RecipeIngredient;
+
     public class Ingredient
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public virtual Unit Unit { get; set; } = new();
-        public int Quantity { get; set; }
+
+        public string Name { get; set; } = string.Empty;
+
+        public virtual ICollection<RecipeIngredient> RecipeIngredients { get; set; } = new List<RecipeIngredient>();
+
+        public virtual ICollection<RecipeIngredientShoppingList> IngredientShoppingLists { get; set; } = new List<RecipeIngredientShoppingList>();
     }
 }

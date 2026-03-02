@@ -1,0 +1,72 @@
+﻿@using Francesco.Recipes.World.Models.BackendModels.Recipe
+@model Francesco.Recipes.World.Views.Recipe.FilterByDifficultyViewModel
+
+<h1>Rezepte nach Schwierigkeitsgrad</h1>
+
+<div class="mb-3">
+	<a asp-controller="Recipe" asp-action="Create" class="btn btn-primary">Neues Rezept erstellen</a>
+</div>
+
+<div class="row mb-4">
+	<div class="col-md-6">
+		<form asp-controller="Recipe" asp-action="FilterByDifficulty" method="get" id="filterForm">
+			<div class="form-group">
+				<label asp-for="SelectedDifficulty" class="form-label">Schwierigkeitsgrad</label>
+				<select asp-for="SelectedDifficulty" asp-items="Html.GetEnumSelectList<Difficulty>()" class="form-select" onchange="submitForm()">
+					<option value="">Alle Schwierigkeitsgrade</option>
+				</select>
+			</div>
+		</form>
+
+	</div>
+</div>
+
+<div class="row">
+	@if (Model?.Recipes != null && Model.Recipes.Any())
+	{
+		<div class="table-responsive">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Beschreibung</th>
+						<th>Schwierigkeitsgrad</th>
+						<th>Portionen</th>
+						<th>Zubereitungszeit</th>
+						<th>Aktionen</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var recipe in Model.Recipes)
+					{
+						<tr>
+							<td>@recipe.Name</td>
+							<td>@(recipe.Description?.Length > 100 ? recipe.Description.Substring(0, 100) + "..." : recipe.Description)</td>
+							<td>@recipe.?Difficulty</td>
+							<td>@recipe.Servings</td>
+							<td>@($"{recipe.PreparationTime.TotalMinutes} Min.")</td>
+							<td>
+								<a asp-controller="Recipe" asp-action="Details" asp-route-id="@recipe.Id" class="btn btn-sm btn-info">Details</a>
+								<a asp-controller="Recipe" asp-action="Edit" asp-route-id="@recipe.Id" class="btn btn-sm btn-primary">Bearbeiten</a>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+	else
+	{
+		<div class="col-12">
+			<p>Keine Rezepte gefunden.</p>
+		</div>
+	}
+</div>
+
+@section Scripts {
+	<script>
+		function submitForm() {
+			document.getElementById('filterForm').submit();
+		}
+	</script>
+}

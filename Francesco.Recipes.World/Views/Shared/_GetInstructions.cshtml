@@ -1,0 +1,39 @@
+﻿@model Francesco.Recipes.World.Models.InstructionViewModel
+@Html.AntiForgeryToken()
+<div id="instructions-container">
+	@for (int i = 0; i < Model.Instructions.Count; i++)
+	{
+		<div class="instruction-item" id="instruction-@Model.Instructions[i].Id">
+			<div class="instruction-controls">
+				@if (Model.Instructions[i].MediaFiles != null && Model.Instructions[i].MediaFiles.Any())
+				{
+					var mediaFile = Model.Instructions[i].MediaFiles.First();
+					if (mediaFile.Data != null)
+					{
+						<div class="instruction-media">
+							<img src="data:@mediaFile.MimeType;base64,@Convert.ToBase64String(mediaFile.Data)"
+								 alt="Instruction Media" class="instruction-media-preview" />
+						</div>
+					}
+				}
+				<input type="file" name="InstructionViewModel.Instructions[@i].MediaFile" class="instruction-file" />
+				<textarea name="InstructionViewModel.Instructions[@i].Description" placeholder="Beschreibung" class="form-control">@Model.Instructions[i].Description</textarea>
+
+				<button type="button" class="btn-delete" onclick="Francesco.removeInstruction('@Model.Instructions[i].Id', '@Model.RecipeId')">🗑️</button>
+			</div>
+			<div class="instruction-actions">
+				<button type="button" class="btn-move-up" onclick="Francesco.moveInstructionUp('@Model.Instructions[i].Id', '@Model.RecipeId')">⬆️</button>
+				<button type="button" class="btn-move-down" onclick="Francesco.moveInstructionDown('@Model.Instructions[i].Id', '@Model.RecipeId')">⬇️</button>
+			</div>
+		</div>
+	}
+</div>
+
+
+
+
+<button type="button" class="btn-add" onclick="Francesco.addInstruction()">Schritte hinzufügen</button>
+
+
+
+<script src="~/js/site.js" asp-append-version="true" defer></script>

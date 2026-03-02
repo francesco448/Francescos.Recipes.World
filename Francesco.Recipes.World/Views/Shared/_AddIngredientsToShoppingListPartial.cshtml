@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Francesco.Recipes.World.Models.BackendModels.RecipeIngredient.RecipeIngredient>
+
+<div class="recipe-ingredients">
+	<h3>Zutaten</h3>
+	<form id="ingredient-form">
+		<ul id="ingredient-list">
+			@foreach (var ingredient in Model)
+			{
+				<li id="ingredient-@ingredient.Id">
+					<input type="checkbox" name="ingredientIds" value="@ingredient.Id" />
+					@ingredient.Ingredient.Name - @ingredient.Quantity @ingredient.Unit.Symbol
+				</li>
+			}
+		</ul>
+		<button type="button" class="btn btn-primary" onclick="addSelectedIngredientsToShoppingList()">Ausgewählte zur Einkaufsliste hinzufügen</button>
+	</form>
+</div>
+
+@section Scripts {
+	<script>
+		function addSelectedIngredientsToShoppingList() {
+			var form = document.getElementById('ingredient-form');
+			var formData = new FormData(form);
+			var selectedIngredientIds = formData.getAll('ingredientIds');
+
+			fetch('/ShoppingList/AddSelectedIngredients', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ ingredientIds: selectedIngredientIds })
+			}).then(response => {
+				if (response.ok) {
+					alert('Ausgewählte Zutaten wurden zur Einkaufsliste hinzugefügt.');
+				} else {
+					alert('Fehler beim Hinzufügen der ausgewählten Zutaten zur Einkaufsliste.');
+				}
+			}).catch(error => {
+				alert('Ein Fehler ist aufgetreten: ' + error.message);
+			});
+		}
+	</script>
+}

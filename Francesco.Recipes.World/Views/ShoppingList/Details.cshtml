@@ -1,0 +1,106 @@
+﻿@model Francesco.Recipes.World.Models.ShoppingListDetailsViewModel
+@{
+    ViewData["Title"] = "Einkaufsliste Details";
+}
+
+@using System.Text.Json
+@{
+	var recipeIngredientsJson = JsonSerializer.Serialize(
+		Model.RecipesInAnyShoppingList.ToDictionary(
+			r => r.Id,
+			r => r.RecipeIngredients.Select(ri => new
+			{
+				id = ri.Id,
+				name = ri.Ingredient.Name,
+				amount = ri.Quantity,
+				unit = ri.Unit.Name,
+				shoppingListId = Model.RecipeIngredientToShoppingListMap.ContainsKey(ri.Id)
+					? Model.RecipeIngredientToShoppingListMap[ri.Id]
+					: Guid.Empty
+			})
+		)
+	);
+
+}
+
+<div class="container">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h2>Einkaufsliste Details</h2>
+		<div style="border:2px solid black; border-radius:30px; padding:10px 30px; display:inline-block;">
+			Anzahl Rezepte: <span id="recipeCount">@Model.RecipeCount</span>
+		</div>
+	</div>
+
+	<div class="d-flex align-items-center mb-4">
+		<button class="btn btn-outline-secondary me-2" type="button" id="carouselLeft">
+			<i class="bi bi-arrow-left"></i>
+		</button>
+		<div class="flex-grow-1 overflow-auto" style="white-space:nowrap;" id="recipeCarousel">
+			@foreach (var recipe in Model.RecipesInAnyShoppingList)
+			{
+				var mediaFile = recipe.MediaFiles?.FirstOrDefault();
+				var imageData = mediaFile?.Data;
+				var mimeType = mediaFile?.MimeType;
+				var ingredientCount = recipe.RecipeIngredients?.Count() ?? 0;
+
+				<div class="card d-inline-block mx-2 recipe-card"
+					 data-recipe-id="@recipe.Id"
+					 style="width: 180px; vertical-align:top; border: 1px solid #000;">
+					<div class="position-relative">
+						<div class="position-absolute top-0 end-0 p-2">
+							<button class="btn btn-sm btn-link text-dark" title="Rezept entfernen"
+									onclick="Francesco.removeRecipe('@recipe.Id');">
+								<i class="bi bi-trash" style="font-size: 1.2rem;"></i>
+							</button>
+						</div>
+						<div class="text-center p-2" style="height: 120px; display: flex; align-items: center; justify-content: center;">
+							@if (imageData != null && mimeType != null)
+							{
+								<img src="data:@mimeType;base64,@Convert.ToBase64String(imageData)"
+									 alt="@recipe.Name"
+									 style="max-height: 100%; max-width: 100%; object-fit: contain;" />
+							}
+							else
+							{
+								<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+									<i class="bi bi-image" style="font-size: 3rem; color: #ccc;"></i>
+								</div>
+							}
+						</div>
+						<div class="p-2 text-center" style="border-top: 1px solid #000; background-color: #fff;">
+							<div class="recipe-name" style="font-weight: bold; font-size: 0.9rem; white-space: normal; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; height: 40px;">@recipe.Name</div>
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+		<button class="btn btn-outline-secondary ms-2" type="button" id="carouselRight">
+			<i class="bi bi-arrow-right"></i>
+		</button>
+	</div>
+
+	<div id="ingredientListContainer" class="mt-4">
+		<div class="card">
+			<div class="card-header bg-primary text-white">
+				<h4 class="mb-0">Zutaten</h4>
+			</div>
+			<div class="card-body">
+				<ul id="ingredientList" class="list-group"></ul>
+				<div class="text-center mt-3">
+					<button id="removeSelectedButton" class="btn" onclick="Francesco.removeSelectedIngredients()">
+						ENTFERNE MARKIERTE
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@section Scripts {
+	@Html.AntiForgeryToken()
+	<script>
+		window.recipeIngredients = @Html.Raw(recipeIngredientsJson);
+	</script>
+	<script src="~/js/site.js"></script>
+}

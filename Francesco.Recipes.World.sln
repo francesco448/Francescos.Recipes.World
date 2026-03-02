@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Francesco.Recipes.World", "Francesco.Recipes.World\Francesco.Recipes.World.csproj", "{4D1BBCF4-8E06-4584-A383-B14BEC558408}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrancescosRecipeWorld Mock", "FrancescosRecipeWorld Mock\FrancescosRecipeWorld Mock.csproj", "{04FD3555-3497-4F6B-B2C3-1B22EEFA676B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4D1BBCF4-8E06-4584-A383-B14BEC558408}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D1BBCF4-8E06-4584-A383-B14BEC558408}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D1BBCF4-8E06-4584-A383-B14BEC558408}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04FD3555-3497-4F6B-B2C3-1B22EEFA676B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04FD3555-3497-4F6B-B2C3-1B22EEFA676B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04FD3555-3497-4F6B-B2C3-1B22EEFA676B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04FD3555-3497-4F6B-B2C3-1B22EEFA676B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

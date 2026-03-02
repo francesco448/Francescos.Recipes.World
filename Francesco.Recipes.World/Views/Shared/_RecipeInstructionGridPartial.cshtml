@@ -1,0 +1,31 @@
+﻿@model Francesco.Recipes.World.Models.InstructionViewModel
+
+<div class="recipe-instructions-section">
+	<h3>Instructions</h3>
+
+	<div class="instructions-grid">
+		@foreach (var instruction in Model.Instructions.OrderBy(i => i.Number))
+		{
+			<div class="instruction-card">
+				<div class="instruction-image">
+					@if (instruction.MediaFiles != null && instruction.MediaFiles.Any())
+					{
+						var mediaFile = instruction.MediaFiles.First();
+						if (mediaFile.Data != null && mediaFile.Data.Length > 0)
+						{
+							<img src="data:@mediaFile.MimeType;base64,@Convert.ToBase64String(mediaFile.Data)" alt="Step @instruction.Number" />
+						}
+					}
+					else
+					{
+						<div class="placeholder-image">
+							<i class="bi bi-image"></i>
+						</div>
+					}
+					<span class="step-number">@instruction.Number</span>
+				</div>
+				<p class="instruction-text">@instruction.Description</p>
+			</div>
+		}
+	</div>
+</div>

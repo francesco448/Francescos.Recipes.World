@@ -20,3 +20,217 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.instruction-item, .ingredient-item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.instruction-controls, .ingredient-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.instruction-media {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    margin-right: 10px;
+}
+
+    .instruction-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.instruction-file {
+    max-width: 200px;
+}
+
+textarea.form-control {
+    min-height: 80px;
+}
+
+.btn-delete, .btn-move-up, .btn-move-down, .btn-save {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.btn-delete {
+    color: #dc3545;
+}
+
+.btn-save {
+    color: #28a745;
+}
+
+.instruction-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.btn-add {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+
+/* Recipe Instructions Grid Layout */
+.instructions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 992px) {
+    .instructions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .instructions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.instruction-card {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: white;
+}
+
+.instruction-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+    .instruction-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+.placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    color: #999;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.step-number {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+
+.instruction-text {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #333;
+}
+
+.recipe-instructions-section h3 {
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+    .recipe-instructions-section h3:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background-color: #007bff;
+    }
+
+
+}
+
+.recipe-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.active-recipe-card {
+    border-bottom: 4px solid #000 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.selected-ingredient .btn-outline-danger {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+}
+
+#removeSelectedButton {
+    display: none;
+    margin-top: 15px;
+    background-color: #FFA500;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+    #removeSelectedButton:hover {
+        background-color: #FF8C00;
+    }
+
+.ingredient-counter {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+

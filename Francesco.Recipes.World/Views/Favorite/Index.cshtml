@@ -1,0 +1,77 @@
+﻿@model Francesco.Recipes.World.Models.FavoriteViewModel
+@{
+	ViewData["Title"] = "Favoriten";
+}
+
+<h2 class="mb-4">Favoriten</h2>
+
+<div class="mb-4 text-end">
+	<div class="dropdown">
+		<button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown"
+				data-bs-toggle="dropdown" aria-expanded="false">
+			@Model.SortOrderDisplayText
+		</button>
+		<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+			<li>
+				<a class="dropdown-item @(Model.SortOrder == "newest" ? "active" : "")"
+				   href="@Url.Action("Index", new { sortOrder = "newest" })">Neueste Favorits</a>
+			</li>
+			<li>
+				<a class="dropdown-item @(Model.SortOrder == "oldest" ? "active" : "")"
+				   href="@Url.Action("Index", new { sortOrder = "oldest" })">Älteste Favorits</a>
+			</li>
+		</ul>
+	</div>
+</div>
+
+@if (!Model.HasFavorites)
+{
+	<div class="alert alert-info">
+		Keine Favoriten vorhanden. Füge Rezepte zu deinen Favoriten hinzu, indem du auf den Stern klickst.
+	</div>
+}
+else
+{
+	<div class="row row-cols-1 row-cols-md-3 g-4">
+		@foreach (var recipe in Model.FavoriteRecipes)
+		{
+			<div class="col">
+				<div class="card h-100">
+					@{
+						var mediaFile = recipe.MediaFiles?.FirstOrDefault(m => m.MimeType != null && m.MimeType.StartsWith("image/"));
+						var imageData = mediaFile?.Data;
+						var mimeType = mediaFile?.MimeType;
+					}
+
+					<div class="card-img-top text-center bg-light" style="height:200px; display:flex; align-items:center; justify-content:center;">
+						@if (imageData != null && mimeType != null)
+						{
+							<img src="data:@mimeType;base64,@Convert.ToBase64String(imageData)"
+								 alt="@recipe.Name" class="img-fluid" style="max-height:100%; max-width:100%; object-fit:contain;" />
+						}
+						else
+						{
+							<div class="text-secondary">Kein Bild</div>
+						}
+					</div>
+
+					<div class="card-body">
+						<h5 class="card-title">@recipe.Name</h5>
+						<div class="d-flex align-items-center mt-3">
+							<span class="me-3">
+								@await Html.PartialAsync("_FavoriteButton", recipe)
+							</span>
+							<span class="text-muted">
+								<i class="bi bi-clock"></i> @(recipe.PreparationTime.TotalMinutes + recipe.CookingTime.TotalMinutes)min
+							</span>
+						</div>
+					</div>
+					<div class="card-footer bg-white">
+						<a href="@Url.Action("Details", "Recipe", new { recipeId = recipe.Id })"
+						   class="btn btn-outline-primary btn-sm w-100">Details</a>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}
