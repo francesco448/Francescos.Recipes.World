@@ -413,3 +413,4 @@
     };
 
 })(window, document);
+console.log("Francesco-Objekt initialisiert:", window.Francesco);

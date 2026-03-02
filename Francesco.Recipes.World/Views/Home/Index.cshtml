@@ -32,39 +32,41 @@
 			</div>
 
 			<div class="row">
-				@foreach (var recipe in category.Recipes)
-				{
-					var mediaFile = recipe.MediaFiles?.FirstOrDefault();
-					var imageData = mediaFile?.Data;
-					var mimeType = mediaFile?.MimeType;
 
-				<div class="col-md-3 mb-4">
-						<div class="card h-100">
-							<div class="recipe-image">
-								@if (imageData != null && mimeType != null)
-								{
-									<img src="data:@mimeType;base64,@Convert.ToBase64String(imageData)" alt="@recipe.Name" class="card-img-top" />
-								}
-								else
-								{
-									<img src="/images/placeholder.png" alt="@recipe.Name" class="card-img-top" />
-								}
+@foreach (var recipe in category.Recipes)
+{
+    var imageData = recipe.ImageData;
+    var mimeType = recipe.MimeType;
+
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <div class="recipe-image">
+                @if (imageData != null && mimeType != null)
+                {
+                    <img src="data:@mimeType;base64,@Convert.ToBase64String(imageData)" alt="@recipe.Name" class="card-img-top" />
+                }
+                else
+                {
+                    <img src="/images/placeholder.png" alt="@recipe.Name" class="card-img-top" />
+                }
+            </div>
+
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">@recipe.Name</h5>
+                <p class="card-text text-muted mb-2">@recipe.CookingTime</p>
+							<div id="favorite-button-@recipe.Id">
+								@await Html.PartialAsync("_FavoriteButton", recipe)
+
 							</div>
 
-							<div class="card-body d-flex flex-column">
-								<h5 class="card-title">@recipe.Name</h5>
-								<p class="card-text text-muted mb-2">@recipe.CookingTime</p>
 
-								<div id="favorite-button-@recipe.Id">
-									@await Html.PartialAsync("_FavoriteButton", recipe)
-								</div>
+                <a href="/Details/@recipe.Id"
+                   class="btn btn-primary mt-auto">Details</a>
+            </div>
+        </div>
+    </div>
+}
 
-								<a href="/Details/@recipe.Id"
-								   class="btn btn-primary mt-auto">Details</a>
-							</div>
-						</div>
-				</div>
-			}
 
 				<div class="col-md-3 mb-4">
 					<div class="card h-100 text-center">

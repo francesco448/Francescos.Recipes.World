@@ -19,6 +19,7 @@
         Task<Recipe> CreateRecipeForCategoryAsync(Category category, string name, string description, Difficulty difficulty, int servings, TimeSpan preparationTime, TimeSpan cookingTime);
 
         Task<bool> DeleteRecipeAsync(Guid recipeId);
+
         Task<IEnumerable<SearchViewModel>> SearchInRecipesAndIngredients(string searchTerm);
     }
 }

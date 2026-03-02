@@ -198,35 +198,6 @@
                 .ToListAsync();
         }
 
-        private static Expression<Func<Recipe, SearchViewModel>> SearchViewModelSelector()
-        {
-            return r => new SearchViewModel
-            {
-                Id = r.Id,
-                Name = r.Name,
-                Description = r.Description,
-                IsFavorite = r.IsFavorite,
-                ImageData = r.MediaFiles
-                    .Where(m => m.MimeType != null && m.MimeType.StartsWith(ContentType.Image))
-                    .Select(m => m.Data)
-                    .FirstOrDefault(),
-                MimeType = r.MediaFiles
-                    .Where(m => m.MimeType != null && m.MimeType.StartsWith(ContentType.Image))
-                    .Select(m => m.MimeType)
-                    .FirstOrDefault(),
-                Ingredients = r.RecipeIngredients.Select(ri => ri.Ingredient.Name).ToList(),
-                TotalTime = r.PreparationTime.Add(r.CookingTime),
-            };
-        }
-
-        private static IQueryable<Recipe> ApplyRecipeSearchFilter(IQueryable<Recipe> query, string normalizedSearchTerm)
-        {
-            return query.Where(r =>
-                EF.Functions.Like(r.Name.ToLower(), $"%{normalizedSearchTerm}%") ||
-                (r.Description != null && EF.Functions.Like(r.Description.ToLower(), $"%{normalizedSearchTerm}%")) ||
-                r.RecipeIngredients.Any(ri => EF.Functions.Like(ri.Ingredient.Name.ToLower(), $"%{normalizedSearchTerm}%")));
-        }
-
         public async Task<bool> DeleteRecipeAsync(Guid recipeId)
         {
             var recipe = await GetRecipeByIdAsync(recipeId);
@@ -259,15 +230,44 @@
                 _context.MediaFiles.RemoveRange(recipe.MediaFiles);
             }
 
-            if (recipe.Favorit != null && recipe.Favorit.Id != Guid.Empty)
+            if (recipe.Favorite != null && recipe.Favorite.Id != Guid.Empty)
             {
-                _context.Remove(recipe.Favorit);
+                _context.Remove(recipe.Favorite);
             }
 
             _context.Recipes.Remove(recipe);
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private static Expression<Func<Recipe, SearchViewModel>> SearchViewModelSelector()
+        {
+            return r => new SearchViewModel
+            {
+                Id = r.Id,
+                Name = r.Name,
+                Description = r.Description,
+                IsFavorite = r.IsFavorite,
+                ImageData = r.MediaFiles
+                    .Where(m => m.MimeType != null && m.MimeType.StartsWith(ContentType.Image))
+                    .Select(m => m.Data)
+                    .FirstOrDefault(),
+                MimeType = r.MediaFiles
+                    .Where(m => m.MimeType != null && m.MimeType.StartsWith(ContentType.Image))
+                    .Select(m => m.MimeType)
+                    .FirstOrDefault(),
+                Ingredients = r.RecipeIngredients.Select(ri => ri.Ingredient.Name).ToList(),
+                TotalTime = r.PreparationTime.Add(r.CookingTime),
+            };
+        }
+
+        private static IQueryable<Recipe> ApplyRecipeSearchFilter(IQueryable<Recipe> query, string normalizedSearchTerm)
+        {
+            return query.Where(r =>
+                EF.Functions.Like(r.Name.ToLower(), $"%{normalizedSearchTerm}%") ||
+                (r.Description != null && EF.Functions.Like(r.Description.ToLower(), $"%{normalizedSearchTerm}%")) ||
+                r.RecipeIngredients.Any(ri => EF.Functions.Like(ri.Ingredient.Name.ToLower(), $"%{normalizedSearchTerm}%")));
         }
     }
 }

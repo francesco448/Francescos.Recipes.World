@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using Francesco.Recipes.World.Models.BackendModels.Category;
     using Francesco.Recipes.World.Models.BackendModels.Recipe;
+    using Francesco.Recipes.World.Views.Category;
 
     public interface ICategoryRepository
     {
@@ -15,5 +16,7 @@
         Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(Guid categoryId);
 
         Task<IEnumerable<Category>> GetAllCategoriesWithRecipesAsync();
+
+        Task<IEnumerable<CategoryRecipesViewModel>> GetAllCategoriesWithRecipesViewModelAsync();
     }
 }

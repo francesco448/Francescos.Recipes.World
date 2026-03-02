@@ -50,5 +50,4 @@
   <Folder Include="Services\MediaFile\" />
   <Folder Include="Services\Ingredient\" />
 </ItemGroup>
-
 </Project>

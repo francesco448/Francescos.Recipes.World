@@ -19,6 +19,7 @@
                   .Where(r => r.IsFavorite)
                   .Include(r => r.Favorite)
                   .Include(r => r.MediaFiles)
+                  .Take(6)
                   .ToListAsync();
         }
 

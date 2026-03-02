@@ -1,4 +1,4 @@
-﻿@model Francesco.Recipes.World.Models.BackendModels.Recipe.Recipe
+﻿@model Francesco.Recipes.World.Models.IFavoritable
 
 <form hx-post="@Url.Action(Model.IsFavorite ? "RemoveFavorite" : "AddFavorite", "Recipe")"
 	  hx-target="this"
